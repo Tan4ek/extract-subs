@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import aeidon
 import sys
 import os
 import re
@@ -24,12 +25,14 @@ import subprocess
 from subliminal import save_subtitles, scan_video, region, download_best_subtitles
 from babelfish import Language
 
+from langdetect import detect
+
 
 def get_mkv_track_id(file_path):
     """ Returns the track ID of the SRT subtitles track"""
     try:
         raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
-                                            stderr=subprocess.STDOUT)
+                                           stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as ex:
         print(ex)
         sys.exit(1)
@@ -41,6 +44,20 @@ def get_mkv_track_id(file_path):
         return raw_info, None
 
 
+def get_mkv_tracks_id(file_path):
+    """ Returns the track ID of the SRT subtitles track"""
+    try:
+        raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
+                                           stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as ex:
+        print(ex)
+        sys.exit(1)
+    pattern = re.compile('(\d+): subtitles \(SubRip/SRT\)', re.DOTALL)
+    finder = pattern.finditer(str(raw_info))
+
+    return map(lambda x: (raw_info, x.group(1)), finder)
+
+
 def download_subs(file):
     print("    Analyzing video file...")
     try:
@@ -49,12 +66,14 @@ def download_subs(file):
         print("    Failed to analyze video. ", ex)
         return None
     print("    Choosing subtitle from online providers...")
-    best_subtitles = download_best_subtitles({video}, {Language('eng')}, only_one=True)
+    best_subtitles = download_best_subtitles({video}, {Language('eng'), Language('ru'), Language('fr')}, only_one=True)
     if best_subtitles[video]:
-        sub = best_subtitles[video][0]
-        print("    Choosen subtitle: {f}".format(f=sub))
-        print("    Downloading...")
-        save_subtitles(video, [sub], single=True)
+        for sub in best_subtitles[video]:
+            sub = best_subtitles[video][0]
+
+            print("    Choosen subtitle: {f}".format(f=sub))
+            print("    Downloading...")
+            save_subtitles(video, [sub], single=True)
     else:
         print("    ERROR: No subtitles found online.")
 
@@ -62,8 +81,14 @@ def download_subs(file):
 def extract_mkv_subs(file):
     print("    Extracting embedded subtitles...")
     try:
+        srt_full_path = file['srt_full_path']
         subprocess.call(["mkvextract", "tracks", file['full_path'],
-                         file['srt_track_id'] + ":" + file['srt_full_path']])
+                         file['srt_track_id'] + ":" + srt_full_path])
+        with open(srt_full_path, 'r') as sub_file:
+            sub_string = sub_file.read().replace('\n', '')
+            lang_code = detect(sub_string)
+            if lang_code:
+                os.rename(srt_full_path, re.sub('\.srt$', '.' + lang_code + '.srt', srt_full_path))
         print("    OK.")
     except subprocess.CalledProcessError:
         print("    ERROR: Could not extract subtitles")
@@ -106,22 +131,34 @@ def main(argv):
             (basename, ext) = os.path.splitext(name)
             if ext in supported_extensions:
                 if ext == '.mkv':
-                    (raw_track_info, track_id) = get_mkv_track_id(os.path.join(root, name))
+                    for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
+                        srt_full_path = os.path.join(root, basename + ".srt")
+                        srt_exists = os.path.isfile(srt_full_path)
+                        file_list.append({'filename': name,
+                                          'basename': basename,
+                                          'extension': ext,
+                                          'dir': root,
+                                          'full_path': os.path.join(root, name),
+                                          'srt_track_id': track_id,
+                                          'srt_full_path': srt_full_path,
+                                          'srt_exists': srt_exists,
+                                          'raw_info': raw_track_info
+                                          })
                 else:
                     raw_track_info = None
                     track_id = None
-                srt_full_path = os.path.join(root, basename + ".srt")
-                srt_exists = os.path.isfile(srt_full_path)
-                file_list.append({'filename': name,
-                                  'basename': basename,
-                                  'extension': ext,
-                                  'dir': root,
-                                  'full_path': os.path.join(root, name),
-                                  'srt_track_id': track_id,
-                                  'srt_full_path': srt_full_path,
-                                  'srt_exists': srt_exists,
-                                  'raw_info': raw_track_info
-                                  })
+                    srt_full_path = os.path.join(root, basename + ".srt")
+                    srt_exists = os.path.isfile(srt_full_path)
+                    file_list.append({'filename': name,
+                                      'basename': basename,
+                                      'extension': ext,
+                                      'dir': root,
+                                      'full_path': os.path.join(root, name),
+                                      'srt_track_id': track_id,
+                                      'srt_full_path': srt_full_path,
+                                      'srt_exists': srt_exists,
+                                      'raw_info': raw_track_info
+                                      })
     extract_subs(file_list)
 
 

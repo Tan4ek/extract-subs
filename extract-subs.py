@@ -115,8 +115,8 @@ def main(argv):
     if not argv:
         print("Error, no directory supplied")
         sys.exit(1)
-    if not os.path.isdir(argv[1]):
-        sys.exit("Error, {f} is not a directory".format(f=argv[1]))
+    if not os.path.isdir(argv[1]) and not os.path.isfile(argv[1]):
+        sys.exit("Error, {f} is not a directory or file".format(f=argv[1]))
     global WDIR
     WDIR = argv[1]
     cache_dir = os.path.join(os.getenv('HOME'), '.subliminal')
@@ -126,27 +126,12 @@ def main(argv):
     # configure the cache
     region.configure('dogpile.cache.dbm', arguments={'filename': cache_file})
     file_list = []
-    for root, dirs, files in os.walk(WDIR):
-        for name in files:
-            (basename, ext) = os.path.splitext(name)
-            if ext in supported_extensions:
-                if ext == '.mkv':
-                    for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
-                        srt_full_path = os.path.join(root, basename + ".srt")
-                        srt_exists = os.path.isfile(srt_full_path)
-                        file_list.append({'filename': name,
-                                          'basename': basename,
-                                          'extension': ext,
-                                          'dir': root,
-                                          'full_path': os.path.join(root, name),
-                                          'srt_track_id': track_id,
-                                          'srt_full_path': srt_full_path,
-                                          'srt_exists': srt_exists,
-                                          'raw_info': raw_track_info
-                                          })
-                else:
-                    raw_track_info = None
-                    track_id = None
+
+    def read_subtitles(name, root):
+        (basename, ext) = os.path.splitext(name)
+        if ext in supported_extensions:
+            if ext == '.mkv':
+                for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
                     srt_full_path = os.path.join(root, basename + ".srt")
                     srt_exists = os.path.isfile(srt_full_path)
                     file_list.append({'filename': name,
@@ -159,6 +144,29 @@ def main(argv):
                                       'srt_exists': srt_exists,
                                       'raw_info': raw_track_info
                                       })
+            else:
+                srt_full_path = os.path.join(root, basename + ".srt")
+                srt_exists = os.path.isfile(srt_full_path)
+                file_list.append({'filename': name,
+                                  'basename': basename,
+                                  'extension': ext,
+                                  'dir': root,
+                                  'full_path': os.path.join(root, name),
+                                  'srt_track_id': None,
+                                  'srt_full_path': srt_full_path,
+                                  'srt_exists': srt_exists,
+                                  'raw_info': None
+                                  })
+
+    if os.path.isdir(WDIR):
+        for root, dirs, files in os.walk(WDIR):
+            for name in files:
+                read_subtitles(name, root)
+    elif os.path.isfile(WDIR):
+        root = os.path.dirname(WDIR)
+        name = os.path.basename(WDIR)
+        read_subtitles(name, root)
+
     extract_subs(file_list)
 
 

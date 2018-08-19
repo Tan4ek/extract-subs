@@ -6,3 +6,8 @@ COPY requirements.txt ./
 COPY extract-subs.py ./
 
 RUN pip install --no-cache-dir -r requirements.txt
+RUN wget -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
+RUN apt-get update
+RUN apt-get install -y mkvtoolnix
+
+ENTRYPOINT ["python", "extract-subs.py"]

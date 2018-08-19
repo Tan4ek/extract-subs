@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  sub-extr:
+    build: ./
+    image: sub-extr
+    container_name: sub-extr
+    volumes:
+      - /path/to/videos:/path/to/videos

@@ -22,6 +22,7 @@ import sys
 import os
 import re
 import subprocess
+import argparse
 from subliminal import save_subtitles, scan_video, region, download_best_subtitles
 from babelfish import Language
 
@@ -110,15 +111,15 @@ def extract_subs(files):
             extract_mkv_subs(file)
 
 
-def main(argv):
+def main(extr_path, validation_regex='*'):
     supported_extensions = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
-    if not argv:
+    if not extr_path:
         print("Error, no directory supplied")
         sys.exit(1)
-    if not os.path.isdir(argv[1]) and not os.path.isfile(argv[1]):
-        sys.exit("Error, {f} is not a directory or file".format(f=argv[1]))
+    if not os.path.isdir(extr_path) and not os.path.isfile(extr_path):
+        sys.exit("Error, {f} is not a directory or file".format(f=extr_path))
     global WDIR
-    WDIR = argv[1]
+    WDIR = extr_path
     cache_dir = os.path.join(os.getenv('HOME'), '.subliminal')
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
@@ -158,18 +159,28 @@ def main(argv):
                                   'raw_info': None
                                   })
 
+    validation = re.compile(validation_regex)
     if os.path.isdir(WDIR):
         for root, dirs, files in os.walk(WDIR):
             for name in files:
-                read_subtitles(name, root)
+                if validation.match(name) is not None:
+                    read_subtitles(name, root)
     elif os.path.isfile(WDIR):
         root = os.path.dirname(WDIR)
         name = os.path.basename(WDIR)
-        read_subtitles(name, root)
+        if validation.match(name) is not None:
+            read_subtitles(name, root)
 
     extract_subs(file_list)
 
 
 if __name__ == '__main__':
-    print('Arguments: sys.argv')
-    main(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path', help='extracting path to a folder or to a file', type=str)
+    parser.add_argument('--validation-regex', help='validation folders/files regex', type=str)
+    args = parser.parse_args()
+    path = args.path
+    validation_regex = args.validation_regex
+    if validation_regex is None:
+        validation_regex = '.*'
+    main(args.path, args.validation_regex)

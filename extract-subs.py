@@ -183,4 +183,4 @@ if __name__ == '__main__':
     validation_regex = args.validation_regex
     if validation_regex is None:
         validation_regex = '.*'
-    main(args.path, args.validation_regex)
+    main(path, validation_regex)

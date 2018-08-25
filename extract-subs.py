@@ -69,12 +69,9 @@ def download_subs(file):
     print("    Choosing subtitle from online providers...")
     best_subtitles = download_best_subtitles({video}, {Language('eng'), Language('ru'), Language('fr')}, only_one=True)
     if best_subtitles[video]:
-        for sub in best_subtitles[video]:
-            sub = best_subtitles[video][0]
+        print("    Downloading subtitles...")
+        save_subtitles(video, best_subtitles[video])
 
-            print("    Choosen subtitle: {f}".format(f=sub))
-            print("    Downloading...")
-            save_subtitles(video, [sub], single=True)
     else:
         print("    ERROR: No subtitles found online.")
 

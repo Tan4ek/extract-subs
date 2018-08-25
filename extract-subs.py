@@ -103,6 +103,8 @@ def extract_subs(files):
         if not file['srt_track_id']:
             print("    No embedded subtitles found.")
             download_subs(file)
+        if os.path.isfile(file['srt_full_path']):
+            print("    File {f} already exist. Skipping".format(f=file['srt_full_path']))
         else:
             print("    Embedded subtitles found.")
             extract_mkv_subs(file)

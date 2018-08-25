@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import aeidon
 import sys
 import os
 import re
@@ -59,7 +58,7 @@ def get_mkv_tracks_id(file_path):
     return map(lambda x: (raw_info, x.group(1)), finder)
 
 
-def download_subs(file):
+def download_subs(file, download_subtitle_langs='eng'):
     print("    Analyzing video file...")
     try:
         video = scan_video(file['full_path'])
@@ -67,7 +66,8 @@ def download_subs(file):
         print("    Failed to analyze video. ", ex)
         return None
     print("    Choosing subtitle from online providers...")
-    best_subtitles = download_best_subtitles({video}, {Language('eng'), Language('ru'), Language('fr')}, only_one=True)
+    languages = set(map(lambda x: Language(x.strip()), download_subtitle_langs.split(',')))
+    best_subtitles = download_best_subtitles({video}, languages, only_one=True)
     if best_subtitles[video]:
         print("    Downloading subtitles...")
         save_subtitles(video, best_subtitles[video])
@@ -108,7 +108,7 @@ def extract_subs(files):
             extract_mkv_subs(file)
 
 
-def main(extr_path, validation_regex='*'):
+def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
     supported_extensions = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
     if not extr_path:
         print("Error, no directory supplied")
@@ -175,9 +175,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('path', help='extracting path to a folder or to a file', type=str)
     parser.add_argument('--validation-regex', help='validation folders/files regex', type=str)
+    parser.add_argument('--download-subtitle-langs',
+                        help='languages for download subtitles. String of 3-letter ISO-639-3 language code separated '
+                             'by ,',
+                        type=str)
     args = parser.parse_args()
     path = args.path
     validation_regex = args.validation_regex
+    download_subtitle_langs = args.download_subtitle_langs
     if validation_regex is None:
         validation_regex = '.*'
-    main(path, validation_regex)
+    if download_subtitle_langs is None:
+        download_subtitle_langs = 'eng'
+    main(path, validation_regex, download_subtitle_langs)

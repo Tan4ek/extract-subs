@@ -161,9 +161,10 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
     validation = re.compile(validation_regex)
     if os.path.isdir(WDIR):
         for root, dirs, files in os.walk(WDIR):
-            for name in files:
-                if validation.match(name) is not None:
-                    read_subtitles(name, root)
+            if '/@Recycle' not in root and '/@Recently-Snapshot' not in root:
+                for name in files:
+                    if validation.match(name) is not None:
+                        read_subtitles(name, root)
     elif os.path.isfile(WDIR):
         root = os.path.dirname(WDIR)
         name = os.path.basename(WDIR)

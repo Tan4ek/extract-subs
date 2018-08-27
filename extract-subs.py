@@ -28,24 +28,8 @@ from babelfish import Language
 from langdetect import detect
 
 
-def get_mkv_track_id(file_path):
-    """ Returns the track ID of the SRT subtitles track"""
-    try:
-        raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
-                                           stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as ex:
-        print(ex)
-        sys.exit(1)
-    pattern = re.compile('.* (\d+): subtitles \(SubRip/SRT\).*', re.DOTALL)
-    m = pattern.match(str(raw_info))
-    if m:
-        return raw_info, m.group(1)
-    else:
-        return raw_info, None
-
-
 def get_mkv_tracks_id(file_path):
-    """ Returns the track ID of the SRT subtitles track"""
+    """ Returns iterator of the track ID of the SRT subtitles track"""
     try:
         raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
                                            stderr=subprocess.STDOUT)
@@ -70,8 +54,10 @@ def download_subs(file, download_subtitle_langs='eng'):
     best_subtitles = download_best_subtitles({video}, languages, only_one=True)
     if best_subtitles[video]:
         print("    Downloading subtitles...")
-        save_subtitles(video, best_subtitles[video])
-
+        try:
+            save_subtitles(video, best_subtitles[video])
+        except:
+            print("    ERROR: Download error {}".format(sys.exc_info()[0]))
     else:
         print("    ERROR: No subtitles found online.")
 
@@ -92,7 +78,7 @@ def extract_mkv_subs(file):
         print("    ERROR: Could not extract subtitles")
 
 
-def extract_subs(files):
+def extract_subs(files, download_subtitle_langs):
     for file in files:
         print("*****************************")
         print("Directory: {d}".format(d=file['dir']))
@@ -102,9 +88,7 @@ def extract_subs(files):
             continue
         if not file['srt_track_id']:
             print("    No embedded subtitles found.")
-            download_subs(file)
-        if os.path.isfile(file['srt_full_path']):
-            print("    File {f} already exist. Skipping".format(f=file['srt_full_path']))
+            download_subs(file, download_subtitle_langs)
         else:
             print("    Embedded subtitles found.")
             extract_mkv_subs(file)
@@ -126,25 +110,17 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
     # configure the cache
     region.configure('dogpile.cache.dbm', arguments={'filename': cache_file})
     file_list = []
+    validation = re.compile(validation_regex)
+
+    def is_file_valid(name, root):
+        (basename, ext) = os.path.splitext(name)
+        is_not_system_folder = '/@Recycle' not in root and '/@Recently-Snapshot' not in root
+        return ext in supported_extensions and validation.match(name) is not None and is_not_system_folder
 
     def read_subtitles(name, root):
         (basename, ext) = os.path.splitext(name)
-        if ext in supported_extensions:
-            if ext == '.mkv':
-                for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
-                    srt_full_path = os.path.join(root, basename + ".srt")
-                    srt_exists = os.path.isfile(srt_full_path)
-                    file_list.append({'filename': name,
-                                      'basename': basename,
-                                      'extension': ext,
-                                      'dir': root,
-                                      'full_path': os.path.join(root, name),
-                                      'srt_track_id': track_id,
-                                      'srt_full_path': srt_full_path,
-                                      'srt_exists': srt_exists,
-                                      'raw_info': raw_track_info
-                                      })
-            else:
+        if ext == '.mkv':
+            for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
                 srt_full_path = os.path.join(root, basename + ".srt")
                 srt_exists = os.path.isfile(srt_full_path)
                 file_list.append({'filename': name,
@@ -152,26 +128,36 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
                                   'extension': ext,
                                   'dir': root,
                                   'full_path': os.path.join(root, name),
-                                  'srt_track_id': None,
+                                  'srt_track_id': track_id,
                                   'srt_full_path': srt_full_path,
                                   'srt_exists': srt_exists,
-                                  'raw_info': None
+                                  'raw_info': raw_track_info
                                   })
-
-    validation = re.compile(validation_regex)
+        else:
+            srt_full_path = os.path.join(root, basename + ".srt")
+            srt_exists = os.path.isfile(srt_full_path)
+            file_list.append({'filename': name,
+                              'basename': basename,
+                              'extension': ext,
+                              'dir': root,
+                              'full_path': os.path.join(root, name),
+                              'srt_track_id': None,
+                              'srt_full_path': srt_full_path,
+                              'srt_exists': srt_exists,
+                              'raw_info': None
+                              })
     if os.path.isdir(WDIR):
         for root, dirs, files in os.walk(WDIR):
-            if '/@Recycle' not in root and '/@Recently-Snapshot' not in root:
-                for name in files:
-                    if validation.match(name) is not None:
-                        read_subtitles(name, root)
+            for name in files:
+                if is_file_valid(name, root):
+                    read_subtitles(name, root)
     elif os.path.isfile(WDIR):
         root = os.path.dirname(WDIR)
         name = os.path.basename(WDIR)
-        if validation.match(name) is not None:
+        if is_file_valid(name, root):
             read_subtitles(name, root)
 
-    extract_subs(file_list)
+    extract_subs(file_list, download_subtitle_langs)
 
 
 if __name__ == '__main__':

@@ -42,7 +42,7 @@ def get_mkv_tracks_id(file_path):
     return map(lambda x: (raw_info, x.group(1)), finder)
 
 
-def download_subs(file, download_subtitle_langs='eng'):
+def download_subs(file, download_subtitle_langs='eng', opensubtitles_auth={}):
     print("    Analyzing video file...")
     try:
         video = scan_video(file['full_path'])
@@ -51,13 +51,14 @@ def download_subs(file, download_subtitle_langs='eng'):
         return None
     print("    Choosing subtitle from online providers...")
     languages = set(map(lambda x: Language(x.strip()), download_subtitle_langs.split(',')))
-    best_subtitles = download_best_subtitles({video}, languages, only_one=True)
+    best_subtitles = download_best_subtitles({video}, languages, only_one=True,
+                                             provider_configs={'opensubtitles': opensubtitles_auth})
     if best_subtitles[video]:
         print("    Downloading subtitles...")
-        try:
-            save_subtitles(video, best_subtitles[video])
-        except:
-            print("    ERROR: Download error {}".format(sys.exc_info()[0]))
+    try:
+        save_subtitles(video, best_subtitles[video])
+    except:
+        print("    ERROR: Download error {}".format(sys.exc_info()[0]))
     else:
         print("    ERROR: No subtitles found online.")
 
@@ -78,7 +79,7 @@ def extract_mkv_subs(file):
         print("    ERROR: Could not extract subtitles")
 
 
-def extract_subs(files, download_subtitle_langs):
+def extract_subs(files, download_subtitle_langs, opensubtitles_auth):
     for file in files:
         print("*****************************")
         print("Directory: {d}".format(d=file['dir']))
@@ -88,13 +89,13 @@ def extract_subs(files, download_subtitle_langs):
             continue
         if not file['srt_track_id']:
             print("    No embedded subtitles found.")
-            download_subs(file, download_subtitle_langs)
+            download_subs(file, download_subtitle_langs, opensubtitles_auth)
         else:
             print("    Embedded subtitles found.")
             extract_mkv_subs(file)
 
 
-def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
+def main(extr_path, validation_regex='*', download_subtitle_langs='eng', opensubtitles_auth={}):
     supported_extensions = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
     if not extr_path:
         print("Error, no directory supplied")
@@ -157,7 +158,22 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng'):
         if is_file_valid(name, root):
             read_subtitles(name, root)
 
-    extract_subs(file_list, download_subtitle_langs)
+    extract_subs(file_list, download_subtitle_langs, opensubtitles_auth)
+
+
+def parse_opensubtitles_parameters(parameter):
+    match = re.match(r"username=(?P<username>.*),password=(?P<password>.*)", parameter)
+    if match is None:
+        return {
+            'username': '',
+            'password': ''
+        }
+    username = match.group('username') or ''
+    password = match.group('password') or ''
+    return {
+        'username': username,
+        'password': password
+    }
 
 
 if __name__ == '__main__':
@@ -168,12 +184,14 @@ if __name__ == '__main__':
                         help='languages for download subtitles. String of 3-letter ISO-639-3 language code separated '
                              'by ,',
                         type=str)
+    parser.add_argument('--opensubtitles',
+                        help='auth for opensubtitles, example value--: username=myusername,password=mypassword',
+                        type=str)
     args = parser.parse_args()
     path = args.path
-    validation_regex = args.validation_regex
-    download_subtitle_langs = args.download_subtitle_langs
-    if validation_regex is None:
-        validation_regex = '.*'
-    if download_subtitle_langs is None:
-        download_subtitle_langs = 'eng'
-    main(path, validation_regex, download_subtitle_langs)
+    validation_regex = args.validation_regex or '.*'
+    download_subtitle_langs = args.download_subtitle_langs or 'eng'
+    opensubtitles = args.opensubtitles or ''
+    parse_opensubtitles_parameters(opensubtitles)
+
+    main(path, validation_regex, download_subtitle_langs, parse_opensubtitles_parameters(opensubtitles))

@@ -2,3 +2,4 @@ aeidon==1.2.1
 langdetect
 subliminal
 babelfish
+pysubs2

@@ -26,6 +26,8 @@ from subliminal import save_subtitles, scan_video, region, download_best_subtitl
 from babelfish import Language
 
 from langdetect import detect
+import itertools
+import mergesubs
 
 
 def get_mkv_tracks_id(file_path):
@@ -55,10 +57,10 @@ def download_subs(file, download_subtitle_langs='eng', opensubtitles_auth={}):
                                              provider_configs={'opensubtitles': opensubtitles_auth})
     if best_subtitles[video]:
         print("    Downloading subtitles...")
-    try:
-        save_subtitles(video, best_subtitles[video])
-    except:
-        print("    ERROR: Download error {}".format(sys.exc_info()[0]))
+        try:
+            save_subtitles(video, best_subtitles[video])
+        except:
+            print("    ERROR: Download error {}".format(sys.exc_info()[0]))
     else:
         print("    ERROR: No subtitles found online.")
 
@@ -73,7 +75,10 @@ def extract_mkv_subs(file):
             sub_string = sub_file.read().replace('\n', '')
             lang_code = detect(sub_string)
             if lang_code:
-                os.rename(srt_full_path, re.sub('\.srt$', '.' + lang_code + '.srt', srt_full_path))
+                srt_full_name_with_lang = re.sub('\.srt$', '.' + lang_code + '.srt', srt_full_path)
+                os.rename(srt_full_path, srt_full_name_with_lang)
+                file['srt_full_path'] = srt_full_name_with_lang
+                file['srt_lang_code'] = lang_code
         print("    OK.")
     except subprocess.CalledProcessError:
         print("    ERROR: Could not extract subtitles")
@@ -95,7 +100,32 @@ def extract_subs(files, download_subtitle_langs, opensubtitles_auth):
             extract_mkv_subs(file)
 
 
-def main(extr_path, validation_regex='*', download_subtitle_langs='eng', opensubtitles_auth={}):
+def merge_subs(files, languages):
+    # languages is array of awailable srt for merge in order, first - top, second - bot
+    if len(languages) != 2:
+        print('    ERROR can\'t merge')
+        return
+
+    def file_path_by_lang(files, lang_code):
+        return next(x for x in files if x['srt_lang_code'] is lang_code)['srt_full_path']
+
+    filtered_files = filter(lambda file: files['srt_lang_code'] is not None, files)
+    for movie_path, srt_files in itertools.groupby(filtered_files, lambda file: file['full_path']):
+        filtered_srt_files = list(filter(lambda file: file['srt_lang_code'] in languages, srt_files))
+        if len(filtered_srt_files) is 2:
+            print('    MERGE file')
+            file = filtered_srt_files[0]
+            merged_srt_path = os.path.join(file['dir'], file['basename']) + \
+                              '.' + languages[0] + '_' + languages[1] + '.ass'
+            try:
+                mergesubs.merge(file_path_by_lang(filtered_srt_files, languages[0]),
+                                file_path_by_lang(filtered_srt_files, languages[1]),
+                                merged_srt_path)
+            except:
+                print("    ERROR: Merge error {}".format(sys.exc_info()[0]))
+
+
+def main(extr_path, validation_regex, download_subtitle_langs='eng', opensubtitles_auth={}, merge_langs=[]):
     supported_extensions = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
     if not extr_path:
         print("Error, no directory supplied")
@@ -147,6 +177,7 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng', opensub
                               'srt_exists': srt_exists,
                               'raw_info': None
                               })
+
     if os.path.isdir(WDIR):
         for root, dirs, files in os.walk(WDIR):
             for name in files:
@@ -159,6 +190,7 @@ def main(extr_path, validation_regex='*', download_subtitle_langs='eng', opensub
             read_subtitles(name, root)
 
     extract_subs(file_list, download_subtitle_langs, opensubtitles_auth)
+    merge_subs(file_list, merge_langs)
 
 
 def parse_opensubtitles_parameters(parameter):
@@ -176,6 +208,12 @@ def parse_opensubtitles_parameters(parameter):
     }
 
 
+def parse_merge_langs(parameter):
+    if parameter is None:
+        return []
+    parameter.strip().split('-')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('path', help='extracting path to a folder or to a file', type=str)
@@ -187,11 +225,15 @@ if __name__ == '__main__':
     parser.add_argument('--opensubtitles',
                         help='auth for opensubtitles, example value--: username=myusername,password=mypassword',
                         type=str)
+    parser.add_argument('--merge-langs',
+                        help='two languages for merge 2-letter code, example: ru-fr. It\'ll generate subtitle xxx.ru_fr.ass with ru on top and fr on bot',
+                        type=str)
     args = parser.parse_args()
     path = args.path
     validation_regex = args.validation_regex or '.*'
     download_subtitle_langs = args.download_subtitle_langs or 'eng'
     opensubtitles = args.opensubtitles or ''
-    parse_opensubtitles_parameters(opensubtitles)
+    opensubtitles_auth = parse_opensubtitles_parameters(opensubtitles)
+    merge_langs = parse_merge_langs(args.merge_langs)
 
-    main(path, validation_regex, download_subtitle_langs, parse_opensubtitles_parameters(opensubtitles))
+    main(path, validation_regex, download_subtitle_langs, opensubtitles_auth, merge_langs)

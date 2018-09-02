@@ -3,3 +3,4 @@ langdetect
 subliminal
 babelfish
 pysubs2
+iso-639

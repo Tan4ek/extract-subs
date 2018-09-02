@@ -217,7 +217,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
                     'srt_exists': srt_exists,
                     'raw_info': raw_track_info
                 })
-            files.append(movie)
+            file_list.append(movie)
         else:
             file_list.append({'filename': name,
                               'basename': basename,

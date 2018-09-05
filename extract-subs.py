@@ -46,7 +46,7 @@ def get_mkv_tracks_id(file_path):
     pattern = re.compile('(\d+): subtitles \(SubRip/SRT\)', re.DOTALL)
     finder = pattern.finditer(str(raw_info))
 
-    return map(lambda x: (raw_info, x.group(1)), finder)
+    return map(lambda x: (str(raw_info), x.group(1)), finder)
 
 
 def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):

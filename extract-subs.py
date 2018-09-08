@@ -75,7 +75,6 @@ def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):
                     'srt_full_path': subtitle_path,
                     'srt_exists': file_exist,
                     'srt_lang_code': iso639.get(part3=saved_subtitle.language.alpha3),
-                    'raw_info': ''
                 })
 
         except:
@@ -214,8 +213,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
                 subtitles.append({
                     'srt_track_id': track_id,
                     'srt_full_path': srt_full_path,
-                    'srt_exists': srt_exists,
-                    'raw_info': raw_track_info
+                    'srt_exists': srt_exists
                 })
             file_list.append(movie)
         else:
@@ -286,9 +284,13 @@ def read_cache(root_dir):
     if not os.path.isfile(cache_file_path):
         return {}
 
-    with open(cache_file_path) as json_file:
-        data = json.load(json_file, cls=Iso639Decoder)
-        return data or {}
+    try:
+        with open(cache_file_path) as json_file:
+            data = json.load(json_file, cls=Iso639Decoder)
+            return data or {}
+    except:
+        print("    ERROR: Open cache file {} error {}".format(cache_file_path, sys.exc_info()[0]))
+    return {}
 
 
 def save_cache(root_dir, cache):

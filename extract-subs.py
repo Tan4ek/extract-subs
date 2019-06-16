@@ -29,6 +29,7 @@ from babelfish import Language
 from langdetect import detect
 from iso639 import languages as iso639
 from iso639_json_parser import Iso639Encoder, Iso639Decoder
+import util
 
 CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
@@ -94,11 +95,16 @@ def extract_mkv_subs(file):
                 sub_string = sub_file.read().replace('\n', '')
                 # return ISO 639-1 language code
                 lang_code = detect(sub_string)
+                iso639_part1_lang_code = util.convert_detect_to_iso639(lang_code)
                 if lang_code:
-                    srt_full_name_with_lang = re.sub('\.srt$', '.' + lang_code + '.srt', srt_full_path)
+                    srt_full_name_with_lang = re.sub('\\.srt$', '.' + lang_code + '.srt', srt_full_path)
                     os.rename(srt_full_path, srt_full_name_with_lang)
                     subtitle['srt_full_path'] = srt_full_name_with_lang
-                    subtitle['srt_lang_code'] = iso639.get(part1=lang_code)
+                    try:
+                        subtitle['srt_lang_code'] = iso639.get(part1=iso639_part1_lang_code)
+                    except KeyError:
+                        print("Can't recognize detected lang_code {} as iso-639 format. Skip 'srt_lang_code' for {}"
+                              .format(lang_code, srt_full_name_with_lang))
             print("    OK.")
         except subprocess.CalledProcessError:
             print("    ERROR: Could not extract subtitles")

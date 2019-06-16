@@ -90,7 +90,7 @@ def extract_mkv_subs(file):
         try:
             srt_full_path = subtitle['srt_full_path']
             subprocess.call(["mkvextract", "tracks", file['full_path'],
-                             subtitle['srt_track_id'] + ":" + srt_full_path, "|", 'grep -v "Progress"'])
+                             subtitle['srt_track_id'] + ":" + srt_full_path])
             with open(srt_full_path, 'r') as sub_file:
                 sub_string = sub_file.read().replace('\n', '')
                 # return ISO 639-1 language code

@@ -6,7 +6,7 @@ I use docker on my Rasberry Pi 3 because I have problems with file encoding (cyr
 Build an image and a container.
 There is an example `build.sh`
 ```
-docker build -t sub-extr:latest
+docker build -t sub-extr:latest .
 docker create \
 	--name sub-extr \
 	-v /HOST_MOVIES_STORAGE_PATH:/MOVIES_STORAGE_PATH \

@@ -108,6 +108,8 @@ def extract_mkv_subs(file):
             print("    OK.")
         except subprocess.CalledProcessError:
             print("    ERROR: Could not extract subtitles")
+        except FileNotFoundError as e:
+            print("    ERROR: Can't read extracted file", e)
 
 
 def extract_subs(files, opensubtitles_auth, target_languages):

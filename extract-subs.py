@@ -42,8 +42,8 @@ def get_mkv_tracks_id(file_path):
         raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
                                            stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as ex:
-        print(ex)
-        sys.exit(1)
+        print("    ERROR: Can't find subtitles track in a file {}. Skip it".format(file_path), ex)
+        return iter(())
     pattern = re.compile('(\d+): subtitles \(SubRip/SRT\)', re.DOTALL)
     finder = pattern.finditer(str(raw_info))
 

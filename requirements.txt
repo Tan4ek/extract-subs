@@ -1,5 +1,6 @@
-langdetect
-subliminal
-babelfish
-pysubs2
-iso-639
+langdetect~=1.0.8
+subliminal~=2.1.0
+babelfish~=0.5.5
+pysubs2~=1.0.0
+iso-639~=0.4.5
+chardet~=3.0.4

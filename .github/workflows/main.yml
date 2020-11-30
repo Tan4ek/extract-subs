@@ -17,7 +17,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:        
-      DOCKER_IMAGE: tan4ek/extract-subs
+      DOCKER_IMAGE: tan4ek/extract-merge-subtitles
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
       DOCKER_TARGET_PLATFORM: linux/arm64                
@@ -40,4 +40,4 @@ jobs:
           push: true
           file: ./Dockerfile
           platforms: linux/amd64,linux/386
-          tags: tan4ek/extract-subs:latest
+          tags: tan4ek/extract-merge-subtitles:latest

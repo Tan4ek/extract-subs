@@ -1,0 +1,141 @@
+﻿+ EBML head
+|+ EBML version: 1
+|+ EBML read version: 1
+|+ Maximum EBML ID length: 4
+|+ Maximum EBML size length: 8
+|+ Document type: matroska
+|+ Document type version: 4
+|+ Document type read version: 2
++ Segment: size 2122266621
+|+ Seek head (subentries will be skipped)
+|+ EBML void: size 4027
+|+ Segment information
+| + Timestamp scale: 1000000
+| + Multiplexing application: libebml v1.4.0 + libmatroska v1.6.2
+| + Writing application: mkvmerge v51.0.0 ('I Wish') 64-bit
+| + Duration: 00:59:12.800000000
+| + Date: Sat Oct 24 07:45:39 2020 UTC
+| + Title: The Queen's Gambit S01E01 - EniaHD
+| + Segment UID: 0xb9 0xf1 0x48 0x2c 0x44 0x20 0x29 0x5c 0x30 0x6d 0x3c 0x04 0x10 0xc7 0xca 0x67
+|+ Tracks
+| + Track
+|  + Track number: 1 (track ID for mkvmerge & mkvextract: 0)
+|  + Track UID: 860582387378998683
+|  + Track type: video
+|  + Lacing flag: 0
+|  + Codec ID: V_MPEG4/ISO/AVC
+|  + Codec's private data: size 60 (H.264 profile: High @L4.0)
+|  + Default duration: 00:00:00.041666666 (24.000 frames/fields per second for a video track)
+|  + Language: und
+|  + Language (IETF BCP 47): und
+|  + Video track
+|   + Pixel width: 1920
+|   + Pixel height: 1080
+|   + Display width: 1920
+|   + Display height: 1080
+| + Track
+|  + Track number: 2 (track ID for mkvmerge & mkvextract: 1)
+|  + Track UID: 3424248032368890549
+|  + Track type: audio
+|  + Codec ID: A_EAC3
+|  + Default duration: 00:00:00.032000000 (31.250 frames/fields per second for a video track)
+|  + Language: rus
+|  + Language (IETF BCP 47): ru
+|  + Audio track
+|   + Sampling frequency: 48000.0
+|   + Channels: 6
+| + Track
+|  + Track number: 3 (track ID for mkvmerge & mkvextract: 2)
+|  + Track UID: 11525311185072948771
+|  + Track type: audio
+|  + Default track flag: 0
+|  + Codec ID: A_EAC3
+|  + Default duration: 00:00:00.032000000 (31.250 frames/fields per second for a video track)
+|  + Language (IETF BCP 47): en
+|  + Audio track
+|   + Sampling frequency: 48000.0
+|   + Channels: 6
+| + Track
+|  + Track number: 4 (track ID for mkvmerge & mkvextract: 3)
+|  + Track UID: 5934517909953001685
+|  + Track type: subtitles
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: rus
+|  + Language (IETF BCP 47): ru
+|  + Name: Forced
+| + Track
+|  + Track number: 5 (track ID for mkvmerge & mkvextract: 4)
+|  + Track UID: 6004943885912320299
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: rus
+|  + Language (IETF BCP 47): ru
+| + Track
+|  + Track number: 6 (track ID for mkvmerge & mkvextract: 5)
+|  + Track UID: 431870544600657051
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language (IETF BCP 47): en
+|  + Name: SDH
+| + Track
+|  + Track number: 7 (track ID for mkvmerge & mkvextract: 6)
+|  + Track UID: 18249064969446964367
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: ger
+|  + Language (IETF BCP 47): de
+| + Track
+|  + Track number: 8 (track ID for mkvmerge & mkvextract: 7)
+|  + Track UID: 4503677663623712001
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: spa
+|  + Language (IETF BCP 47): es
+| + Track
+|  + Track number: 9 (track ID for mkvmerge & mkvextract: 8)
+|  + Track UID: 13790934498867772545
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: fre
+|  + Language (IETF BCP 47): fr
+| + Track
+|  + Track number: 10 (track ID for mkvmerge & mkvextract: 9)
+|  + Track UID: 18026512723976048479
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: ita
+|  + Language (IETF BCP 47): it
+| + Track
+|  + Track number: 11 (track ID for mkvmerge & mkvextract: 10)
+|  + Track UID: 8388277213197799975
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: por
+|  + Language (IETF BCP 47): pt
+|  + Name: Brazilian
+| + Track
+|  + Track number: 12 (track ID for mkvmerge & mkvextract: 11)
+|  + Track UID: 13862966232070816916
+|  + Track type: subtitles
+|  + Default track flag: 0
+|  + Lacing flag: 0
+|  + Codec ID: S_TEXT/UTF8
+|  + Language: rum
+|  + Language (IETF BCP 47): ro
+|+ EBML void: size 1419
+|+ Cluster

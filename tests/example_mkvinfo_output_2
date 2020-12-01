@@ -1,0 +1,265 @@
+{
+  "attachments": [],
+  "chapters": [],
+  "container": {
+    "properties": {
+      "container_type": 17,
+      "date_local": "2020-10-24T10:45:39+03:00",
+      "date_utc": "2020-10-24T07:45:39Z",
+      "duration": 3552800000000,
+      "is_providing_timestamps": true,
+      "muxing_application": "libebml v1.4.0 + libmatroska v1.6.2",
+      "segment_uid": "b9f1482c4420295c306d3c0410c7ca67",
+      "title": "The Queen's Gambit S01E01 - EniaHD",
+      "writing_application": "mkvmerge v51.0.0 ('I Wish') 64-bit"
+    },
+    "recognized": true,
+    "supported": true,
+    "type": "Matroska"
+  },
+  "errors": [],
+  "file_name": "The.Queens.Gambit.S01E01.Openings.1080p.NF.WEB-DL.DDP5.1.x264-EniaHD.mkv",
+  "global_tags": [],
+  "identification_format_version": 13,
+  "track_tags": [],
+  "tracks": [
+    {
+      "codec": "MPEG-4p10/AVC/H.264",
+      "id": 0,
+      "properties": {
+        "codec_id": "V_MPEG4/ISO/AVC",
+        "codec_private_data": "01640028ffe1002867640028acca501e0089f9701100000300010000030030e440001312d00002faf0a4c30078c18cb001000568e93b2c8bfdf8f800",
+        "codec_private_length": 60,
+        "default_duration": 41666666,
+        "default_track": true,
+        "display_dimensions": "1920x1080",
+        "display_unit": 0,
+        "enabled_track": true,
+        "forced_track": false,
+        "language": "und",
+        "language_ietf": "und",
+        "minimum_timestamp": 0,
+        "number": 1,
+        "packetizer": "mpeg4_p10_video",
+        "pixel_dimensions": "1920x1080",
+        "uid": 860582387378998683
+      },
+      "type": "video"
+    },
+    {
+      "codec": "E-AC-3",
+      "id": 1,
+      "properties": {
+        "audio_channels": 6,
+        "audio_sampling_frequency": 48000,
+        "codec_id": "A_EAC3",
+        "codec_private_length": 0,
+        "default_duration": 32000000,
+        "default_track": true,
+        "enabled_track": true,
+        "forced_track": false,
+        "language": "rus",
+        "language_ietf": "ru",
+        "minimum_timestamp": 0,
+        "number": 2,
+        "uid": 3424248032368890549
+      },
+      "type": "audio"
+    },
+    {
+      "codec": "E-AC-3",
+      "id": 2,
+      "properties": {
+        "audio_channels": 6,
+        "audio_sampling_frequency": 48000,
+        "codec_id": "A_EAC3",
+        "codec_private_length": 0,
+        "default_duration": 32000000,
+        "default_track": false,
+        "enabled_track": true,
+        "forced_track": false,
+        "language": "eng",
+        "language_ietf": "en",
+        "minimum_timestamp": 0,
+        "number": 3,
+        "uid": 11525311185072948771
+      },
+      "type": "audio"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 3,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": true,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "rus",
+        "language_ietf": "ru",
+        "minimum_timestamp": 8250000000,
+        "number": 4,
+        "text_subtitles": true,
+        "track_name": "Forced",
+        "uid": 5934517909953001685
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 4,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "rus",
+        "language_ietf": "ru",
+        "minimum_timestamp": 8250000000,
+        "number": 5,
+        "text_subtitles": true,
+        "uid": 6004943885912320299
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 5,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "eng",
+        "language_ietf": "en",
+        "minimum_timestamp": 6625000000,
+        "number": 6,
+        "text_subtitles": true,
+        "track_name": "SDH",
+        "uid": 431870544600657051
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 6,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "ger",
+        "language_ietf": "de",
+        "minimum_timestamp": 7166000000,
+        "number": 7,
+        "text_subtitles": true,
+        "uid": 18249064969446964367
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 7,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "spa",
+        "language_ietf": "es",
+        "minimum_timestamp": 7166000000,
+        "number": 8,
+        "text_subtitles": true,
+        "uid": 4503677663623712001
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 8,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "fre",
+        "language_ietf": "fr",
+        "minimum_timestamp": 8250000000,
+        "number": 9,
+        "text_subtitles": true,
+        "uid": 13790934498867772545
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 9,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "ita",
+        "language_ietf": "it",
+        "minimum_timestamp": 7166000000,
+        "number": 10,
+        "text_subtitles": true,
+        "uid": 18026512723976048479
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 10,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "por",
+        "language_ietf": "pt",
+        "minimum_timestamp": 8083000000,
+        "number": 11,
+        "text_subtitles": true,
+        "track_name": "Brazilian",
+        "uid": 8388277213197799975
+      },
+      "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 11,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "rum",
+        "language_ietf": "ro",
+        "minimum_timestamp": 7166000000,
+        "number": 12,
+        "text_subtitles": true,
+        "uid": 13862966232070816916
+      },
+      "type": "subtitles"
+    }
+  ],
+  "warnings": []
+}

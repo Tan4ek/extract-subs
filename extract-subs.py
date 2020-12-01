@@ -17,19 +17,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys
+import argparse
+import json
 import os
 import re
 import subprocess
-import argparse
-import json
-import mergesubs
-from subliminal import save_subtitles, scan_video, region, download_best_subtitles, subtitle
+import sys
+
 from babelfish import Language
-from langdetect import detect
 from iso639 import languages as iso639
-from iso639_json_parser import Iso639Encoder, Iso639Decoder
+from langdetect import detect
+from subliminal import save_subtitles, scan_video, region, download_best_subtitles, subtitle
+
+import mergesubs
 import util
+from extract_mkv_info import parse_mkvinfo_from_file
+from iso639_json_parser import Iso639Encoder, Iso639Decoder
 
 CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
@@ -38,16 +41,9 @@ CACHE = {}
 
 def get_mkv_tracks_id(file_path):
     """ Returns iterator of the track ID of the SRT subtitles track"""
-    try:
-        raw_info = subprocess.check_output(["mkvmerge", "-i", file_path],
-                                           stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as ex:
-        print("    ERROR: Can't find subtitles track in a file {}. Skip it".format(file_path), ex)
-        return iter(())
-    pattern = re.compile('(\d+): subtitles \(SubRip/SRT\)', re.DOTALL)
-    finder = pattern.finditer(str(raw_info))
+    mkv_tracks_info = parse_mkvinfo_from_file(file_path)
 
-    return map(lambda x: (str(raw_info), x.group(1)), finder)
+    return map(lambda x: ("", x.track_number), mkv_tracks_info)
 
 
 def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):
@@ -215,7 +211,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
                 'subtitles': subtitles,
                 'merged_subtitles': []  # todo find existed merged subtitles
             }
-            for (raw_track_info, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
+            for (_, track_id) in get_mkv_tracks_id(os.path.join(root, name)):
                 srt_full_path = os.path.join(root, basename + ".srt")
                 srt_exists = os.path.isfile(srt_full_path)
                 subtitles.append({

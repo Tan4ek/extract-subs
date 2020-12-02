@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
             self.assertTrue(len(subtitles_mkv_info) > 0)
 
     def test_parse_file_success(self):
-        mkv_tracks_info = parse_mkvinfo_from_file('tt-001.mkv')
+        mkv_tracks_info = parse_mkvinfo_from_file('fragment.mkv')
         self.assertTrue(len(mkv_tracks_info) > 0)
         subtitles_mkv_info = [i for i in mkv_tracks_info if i.track_type == 'subtitles']
         self.assertTrue(len(subtitles_mkv_info) > 0)

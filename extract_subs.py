@@ -22,10 +22,8 @@ import json
 import logging
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
-from tempfile import mktemp
 from typing import List, Set
 
 from babelfish import Language
@@ -34,7 +32,7 @@ from subliminal import save_subtitles, scan_video, region, download_best_subtitl
 
 import mergesubs
 import util
-from extract_mkv_info import parse_mkv_subtitles_info_from_file
+from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks
 from iso639_json_parser import Iso639Encoder, Iso639Decoder
 
 CACHE_FILE_NAME = '.extractsubs'
@@ -78,34 +76,13 @@ def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):
         logging.error("No subtitles found online.")
 
 
-def extract_mkv_subs(file: dict):
-    logging.info("Extracting embedded subtitles...")
-    if not file['subtitles']:
-        return
-
-    def _track_to_srt_path(subtitles: List[dict]) -> List[str]:
-        return [str(s['srt_track_id']) + ":" + s['srt_full_path'] for s in subtitles]
-
-    tracks_to_srt_paths = _track_to_srt_path(file['subtitles'])
-    temp_file = mktemp()
-    command = ["mkvextract", "tracks", file['full_path'],
-               *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
-    result = subprocess.run(command, stdout=subprocess.PIPE)
-    logging.info(f" Logs: {temp_file}")
-    # https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
-    if result.returncode not in [0, 1]:
-        mkvextract_output = Path(temp_file).read_text()
-        logging.info(f"Can't extract subtitles from file {file['full_path']}. Exit code: {result.returncode}, "
-                     f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
-
-
 def extract_subs(files: List[dict], opensubtitles_auth: dict, target_langs: list):
     for file in files:
         logging.info("*****************************")
         logging.info(f"Directory: {file['dir']}")
         logging.info(f"File: {file['filename']}")
         logging.info("Embedded subtitles found.")
-        extract_mkv_subs(file)
+        extract_mkv_tracks(file['full_path'], file['subtitles'])
         extracted_languages = list(
             filter(lambda subtitle: subtitle['srt_lang_code'] is not None, file['subtitles']))
         languages_to_download = list(filter(lambda lang: lang not in extracted_languages, target_langs))

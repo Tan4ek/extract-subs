@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
 import json
+import logging
 import os
 import re
 import subprocess
@@ -40,28 +41,24 @@ CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
 CACHE = {}
 
-
-def get_mkv_tracks_id(file_path):
-    """ Returns iterator of the track ID of the SRT subtitles track"""
-    mkv_subtitles_info = parse_mkv_subtitles_info_from_file(file_path)
-    return mkv_subtitles_info
+logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):
     if download_subtitle_langs is None:
         download_subtitle_langs = [iso639.get(part3='eng')]
-    print("    Analyzing video file...")
+    logging.info("Analyzing video file...")
     try:
         video = scan_video(file['full_path'])
     except ValueError as ex:
-        print("    Failed to analyze video. ", ex)
+        logging.info("Failed to analyze video. ", ex)
         return None
-    print("    Choosing subtitle from online providers...")
+    logging.info("Choosing subtitle from online providers...")
     languages_to_download = set(map(lambda lang: Language(lang.part3), download_subtitle_langs))
     best_subtitles = download_best_subtitles({video}, languages_to_download, only_one=True,
                                              provider_configs={'opensubtitles': opensubtitles_auth})
     if best_subtitles[video]:
-        print("    Downloading subtitles...")
+        logging.info("Downloading subtitles...")
         try:
             saved_subtitles = save_subtitles(video, best_subtitles[video])
             for saved_subtitle in saved_subtitles:
@@ -75,14 +72,14 @@ def download_subs(file, download_subtitle_langs=None, opensubtitles_auth={}):
                     'srt_lang_code': iso639.get(part3=saved_subtitle.language.alpha3),
                 })
 
-        except:
-            print("    ERROR: Download error {}".format(sys.exc_info()[0]))
+        except Exception as e:
+            logging.error(f"Download error {e}")
     else:
-        print("    ERROR: No subtitles found online.")
+        logging.error("No subtitles found online.")
 
 
-def extract_mkv_subs(file):
-    print("    Extracting embedded subtitles...")
+def extract_mkv_subs(file: dict):
+    logging.info("Extracting embedded subtitles...")
     if not file['subtitles']:
         return
 
@@ -94,24 +91,24 @@ def extract_mkv_subs(file):
     command = ["mkvextract", "tracks", file['full_path'],
                *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
     result = subprocess.run(command, stdout=subprocess.PIPE)
-    print(f"     Logs: {temp_file}")
+    logging.info(f" Logs: {temp_file}")
     # https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
     if result.returncode not in [0, 1]:
         mkvextract_output = Path(temp_file).read_text()
-        print(f"Can't extract subtitles from file {file['full_path']}. Exit code: {result.returncode}, "
-              f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
+        logging.info(f"Can't extract subtitles from file {file['full_path']}. Exit code: {result.returncode}, "
+                     f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
 
 
-def extract_subs(files, opensubtitles_auth, target_languages):
+def extract_subs(files: List[dict], opensubtitles_auth: dict, target_langs: list):
     for file in files:
-        print("*****************************")
-        print("Directory: {d}".format(d=file['dir']))
-        print("File: {f}".format(f=file['filename']))
-        print("    Embedded subtitles found.")
+        logging.info("*****************************")
+        logging.info(f"Directory: {file['dir']}")
+        logging.info(f"File: {file['filename']}")
+        logging.info("Embedded subtitles found.")
         extract_mkv_subs(file)
         extracted_languages = list(
             filter(lambda subtitle: subtitle['srt_lang_code'] is not None, file['subtitles']))
-        languages_to_download = list(filter(lambda lang: lang not in extracted_languages, target_languages))
+        languages_to_download = list(filter(lambda lang: lang not in extracted_languages, target_langs))
 
         download_subs(file, languages_to_download, opensubtitles_auth)
 
@@ -159,17 +156,17 @@ def merge_subs(files, merge_languages_pairs):
                             file['merged_subtitles'] = merged_subtitles
                             index = index + 1
                         except Exception as e:
-                            print(f"    ERROR: Merge error {str(e)}")
+                            logging.error(f"Merge error {str(e)}")
 
 
 def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_regex='.*',
          opensubtitles_auth={}):
     supported_extensions = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
     if not extr_path:
-        print("Error, no directory supplied")
+        logging.error("No directory supplied")
         sys.exit(1)
     if not os.path.isdir(extr_path) and not os.path.isfile(extr_path):
-        sys.exit("Error, {f} is not a directory or file".format(f=extr_path))
+        sys.exit(f"Error, {extr_path} is not a directory or file")
     cache_dir = os.path.join(os.getenv('HOME'), '.subliminal')
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
@@ -184,7 +181,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
         is_not_system_folder = '/@Recycle' not in root and '/@Recently-Snapshot' not in root
         return ext in supported_extensions and validation.match(name) is not None and is_not_system_folder
 
-    def is_file_already_scaned(name, root):
+    def is_file_already_scanned(name, root):
         if not isinstance(CACHE, dict) or 'files' not in CACHE:
             return False
         already_scaned_files = CACHE['files']
@@ -196,7 +193,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
 
             return False
         except Exception as e:
-            print(f"    ERROR: Download error {e}")
+            logging.error(f"Download error {e}")
             return False
 
     def read_subtitles(name, root):
@@ -213,7 +210,7 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
                 'merged_subtitles': []  # todo find existed merged subtitles
             }
 
-            for mkv_subtitle_info in get_mkv_tracks_id(os.path.join(root, name)):
+            for mkv_subtitle_info in parse_mkv_subtitles_info_from_file(os.path.join(root, name)):
                 track_iso639_lang_code = util.bcp47_language_code_to_iso_639(mkv_subtitle_info.language_ietf,
                                                                              default=mkv_subtitle_info.language)
                 name_suffix = f"_{mkv_subtitle_info.name}" if mkv_subtitle_info.name else ""
@@ -243,12 +240,12 @@ def main(extr_path, target_languages=[], merge_languages_pairs=[], validation_re
     if os.path.isdir(extr_path):
         for root, dirs, files in os.walk(extr_path):
             for name in files:
-                if is_file_valid(name, root) and not is_file_already_scaned(name, root):
+                if is_file_valid(name, root) and not is_file_already_scanned(name, root):
                     read_subtitles(name, root)
     elif os.path.isfile(extr_path):
         root = os.path.dirname(extr_path)
         name = os.path.basename(extr_path)
-        if is_file_valid(name, root) and not is_file_already_scaned(name, root):
+        if is_file_valid(name, root) and not is_file_already_scanned(name, root):
             read_subtitles(name, root)
 
     extract_subs(file_list, opensubtitles_auth, target_languages)
@@ -302,8 +299,8 @@ def read_cache(root_dir):
         with open(cache_file_path) as json_file:
             data = json.load(json_file, cls=Iso639Decoder)
             return data or {}
-    except:
-        print("    ERROR: Open cache file {} error {}".format(cache_file_path, sys.exc_info()[0]))
+    except Exception as e:
+        logging.error(f"Open cache file {cache_file_path} error {e}")
     return {}
 
 

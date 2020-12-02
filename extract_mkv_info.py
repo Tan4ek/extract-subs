@@ -7,6 +7,7 @@ from typing import List
 
 _MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
 
+
 @dataclass
 class MKVTrackInfo:
     # very useful information https://tools.ietf.org/id/draft-lhomme-cellar-matroska-04.html

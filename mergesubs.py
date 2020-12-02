@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-import pysubs2
 import chardet
+import pysubs2
 from pysubs2 import SSAStyle, Color
 
 
 def charset_detect(filename):
     with open(filename, 'rb') as fi:
-        rawdata = fi.read()
-    encoding = chardet.detect(rawdata)['encoding']
-    return encoding
+        return chardet.detect(fi.read())['encoding']
 
 
 def merge(file1, file2, outfile):

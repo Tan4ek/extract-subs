@@ -259,6 +259,24 @@
         "uid": 13862966232070816916
       },
       "type": "subtitles"
+    },
+    {
+      "codec": "SubRip/SRT",
+      "id": 12,
+      "properties": {
+        "codec_id": "S_TEXT/UTF8",
+        "codec_private_length": 0,
+        "default_track": false,
+        "enabled_track": true,
+        "encoding": "UTF-8",
+        "forced_track": false,
+        "language": "rus",
+        "minimum_timestamp": 7166000000,
+        "number": 13,
+        "text_subtitles": true,
+        "uid": 13862966232070816917
+      },
+      "type": "subtitles"
     }
   ],
   "warnings": []

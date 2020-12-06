@@ -1,0 +1,344 @@
+{
+  "files": [
+    {
+      "basename": "[Beatrice-Raws] Kimi no Na wa [BDRip 1920x1080 x264]",
+      "dir": "/Movies/Kimi no Na wa [BDRip 1920x1080 x264]",
+      "extension": ".mkv",
+      "filename": "[Beatrice-Raws] Kimi no Na wa [BDRip 1920x1080 x264].mkv",
+      "full_path": "/Movies/Kimi no Na wa [BDRip 1920x1080 x264]/[Beatrice-Raws] Kimi no Na wa [BDRip 1920x1080 x264].mkv",
+      "merged_subtitles": [],
+      "subtitles": [
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/Kimi no Na wa [BDRip 1920x1080 x264]/[Beatrice-Raws] Kimi no Na wa [BDRip 1920x1080 x264].en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": null
+        }
+      ]
+    },
+    {
+      "basename": "[Beatrice-Raws] Kimi no Na wa (Opening) [BDRip 1920x1080 x264 FLAC]",
+      "dir": "/Movies/Kimi no Na wa [BDRip 1920x1080 x264]/Bonus",
+      "extension": ".mkv",
+      "filename": "[Beatrice-Raws] Kimi no Na wa (Opening) [BDRip 1920x1080 x264 FLAC].mkv",
+      "full_path": "/Movies/Kimi no Na wa [BDRip 1920x1080 x264]/Bonus/[Beatrice-Raws] Kimi no Na wa (Opening) [BDRip 1920x1080 x264 FLAC].mkv",
+      "merged_subtitles": [],
+      "subtitles": []
+    },
+    {
+      "basename": "The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker",
+      "dir": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng",
+      "extension": ".mkv",
+      "filename": "The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.mkv",
+      "full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.mkv",
+      "merged_subtitles": [
+        {
+          "lang_bot": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "lang_top": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker..ru_en.ass"
+        }
+      ],
+      "subtitles": [
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "2"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "3"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "4"
+        },
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/The.Mandalorian.S02.WEB-DL.1080p.Eng/The.Mandalorian.S02E06.WEB-DL.1080p.RGzsRutracker.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": null
+        }
+      ]
+    },
+    {
+      "basename": "Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD",
+      "dir": "/Movies",
+      "extension": ".mkv",
+      "filename": "Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.mkv",
+      "full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.mkv",
+      "merged_subtitles": [
+        {
+          "lang_bot": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "lang_top": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD..ru_en.ass"
+        }
+      ],
+      "subtitles": [
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "4"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "5"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.uk.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "ukr"
+          },
+          "srt_track_id": "6"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.uk.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "ukr"
+          },
+          "srt_track_id": "7"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "8"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "9"
+        },
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/Spider.Man.Far.from.Home.2019.1080p.BluRay.x264-LoRD.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": null
+        }
+      ]
+    },
+    {
+      "basename": "Robin.Hood.Men.In.Tights.1993.720p.BluRay.s264-SiNNERS [PublicHD]",
+      "dir": "/Movies",
+      "extension": ".mkv",
+      "filename": "Robin.Hood.Men.In.Tights.1993.720p.BluRay.s264-SiNNERS [PublicHD].mkv",
+      "full_path": "/Movies/Robin.Hood.Men.In.Tights.1993.720p.BluRay.s264-SiNNERS [PublicHD].mkv",
+      "merged_subtitles": [],
+      "subtitles": [
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Robin.Hood.Men.In.Tights.1993.720p.BluRay.s264-SiNNERS [PublicHD].en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "2"
+        }
+      ]
+    },
+    {
+      "basename": "(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng",
+      "dir": "/Movies",
+      "extension": ".mkv",
+      "filename": "(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.mkv",
+      "full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.mkv",
+      "merged_subtitles": [
+        {
+          "lang_bot": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "lang_top": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng..ru_en.ass"
+        }
+      ],
+      "subtitles": [
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "3"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "4"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.uk.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "ukr"
+          },
+          "srt_track_id": "5"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "6"
+        },
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.ru.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "rus"
+          },
+          "srt_track_id": "7"
+        },
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/(500) Days of Summer.2009.BD.Rip.720p.h264.Rus.Eng.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": null
+        }
+      ]
+    },
+    {
+      "basename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 2. \u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440, \u0414\u0437\u0435\u0440\u0436\u0438\u043d\u0441\u043a",
+      "dir": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]",
+      "extension": ".mkv",
+      "filename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 2. \u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440, \u0414\u0437\u0435\u0440\u0436\u0438\u043d\u0441\u043a.mkv",
+      "full_path": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 2. \u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440, \u0414\u0437\u0435\u0440\u0436\u0438\u043d\u0441\u043a.mkv",
+      "merged_subtitles": [],
+      "subtitles": []
+    },
+    {
+      "basename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 9. \u041e\u043c\u0441\u043a",
+      "dir": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]",
+      "extension": ".mkv",
+      "filename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 9. \u041e\u043c\u0441\u043a.mkv",
+      "full_path": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 9. \u041e\u043c\u0441\u043a.mkv",
+      "merged_subtitles": [],
+      "subtitles": []
+    },
+    {
+      "basename": "Zavod.2018.1080p.WEBRip.x264.AAC",
+      "dir": "/Movies",
+      "extension": ".mkv",
+      "filename": "Zavod.2018.1080p.WEBRip.x264.AAC.mkv",
+      "full_path": "/Movies/Zavod.2018.1080p.WEBRip.x264.AAC.mkv",
+      "merged_subtitles": [],
+      "subtitles": [
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/Zavod.2018.1080p.WEBRip.x264.AAC.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": null
+        }
+      ]
+    },
+    {
+      "basename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 1. \u041c\u043e\u0441\u043a\u0432\u0430. (\u0421\u0442\u0430\u0440\u0442 \u0430\u0432\u0442\u043e\u043f\u0440\u043e\u0431\u0435\u0433\u0430)",
+      "dir": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]",
+      "extension": ".mkv",
+      "filename": "\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 1. \u041c\u043e\u0441\u043a\u0432\u0430. (\u0421\u0442\u0430\u0440\u0442 \u0430\u0432\u0442\u043e\u043f\u0440\u043e\u0431\u0435\u0433\u0430).mkv",
+      "full_path": "/Movies/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412 [Web-DL][MKV - AVC MP3]/\u0420\u0435\u0443\u0442\u043e\u0432 \u0422\u0412. \u0421\u0435\u0437\u043e\u043d 3 \u0412\u044b\u043f\u0443\u0441\u043a 1. \u041c\u043e\u0441\u043a\u0432\u0430. (\u0421\u0442\u0430\u0440\u0442 \u0430\u0432\u0442\u043e\u043f\u0440\u043e\u0431\u0435\u0433\u0430).mkv",
+      "merged_subtitles": [],
+      "subtitles": []
+    },
+    {
+      "basename": "Fleabag.S01E02.720p.WEB-DL.Rus.Eng",
+      "dir": "/Movies/Fleabag.S01.720p.WEB-DL",
+      "extension": ".mkv",
+      "filename": "Fleabag.S01E02.720p.WEB-DL.Rus.Eng.mkv",
+      "full_path": "/Movies/Fleabag.S01.720p.WEB-DL/Fleabag.S01E02.720p.WEB-DL.Rus.Eng.mkv",
+      "merged_subtitles": [],
+      "subtitles": [
+        {
+          "srt_exists": false,
+          "srt_full_path": "/Movies/Fleabag.S01.720p.WEB-DL/Fleabag.S01E02.720p.WEB-DL.Rus.Eng.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": "3"
+        },
+        {
+          "srt_exists": true,
+          "srt_full_path": "/Movies/Fleabag.S01.720p.WEB-DL/Fleabag.S01E02.720p.WEB-DL.Rus.Eng.en.srt",
+          "srt_lang_code": {
+            "_type": "iso639_3_lang",
+            "value": "eng"
+          },
+          "srt_track_id": null
+        }
+      ]
+    }
+  ]
+}

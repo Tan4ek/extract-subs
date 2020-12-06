@@ -8,7 +8,7 @@ from iso639 import languages
 from extract_subs import main, CACHE
 
 
-class MyTestCase(unittest.TestCase):
+class TestExtractSubs(unittest.TestCase):
     def test_something(self):
         tmp_dir = tempfile.mkdtemp()
 

@@ -4,7 +4,7 @@ from extract_mkv_info import parse_mkv_subtitles_info_from_str
 from util import bcp47_language_code_to_iso_639, iso639_from_str
 
 
-class MyTestCase(unittest.TestCase):
+class TestUtils(unittest.TestCase):
     def test_bcp47_language_code_to_iso_639(self):
         with open('example_mkvinfo_output_2', 'r') as info_file:
             subtitles_mkv_info = parse_mkv_subtitles_info_from_str(info_file.read())

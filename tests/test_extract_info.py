@@ -3,7 +3,7 @@ import unittest
 from extract_mkv_info import parse_mkvinfo, parse_mkvinfo_from_file, parse_mkv_subtitles_info_from_str
 
 
-class MyTestCase(unittest.TestCase):
+class TestExtractInfo(unittest.TestCase):
     def test_invalid_parse_format(self):
         with open('example_mkvinfo_output_1', 'r') as info_file:
             parsed = parse_mkvinfo(info_file.read())

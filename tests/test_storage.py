@@ -20,7 +20,7 @@ def read_cache(file_path):
         return data or {}
 
 
-class MyTestCase(unittest.TestCase):
+class TestStorage(unittest.TestCase):
     def test_migration(self):
         storage = Storage(':memory:')
         tmp_dir = tempfile.mkdtemp()

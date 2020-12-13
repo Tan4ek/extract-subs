@@ -19,10 +19,10 @@ class TestExtractSubs(unittest.TestCase):
              [(languages.get(part1='ru'), languages.get(part1='en'))])
 
         cache_files = CACHE['files']
-        self.assertEquals(1, len(cache_files))
+        self.assertEqual(1, len(cache_files))
         fragment_file = cache_files[0]
-        self.assertEquals(10, len(fragment_file['subtitles']))
-        self.assertEquals(2, len(fragment_file['merged_subtitles']))
+        self.assertEqual(10, len(fragment_file['subtitles']))
+        self.assertEqual(2, len(fragment_file['merged_subtitles']))
 
         shutil.rmtree(tmp_dir, ignore_errors=True)
 

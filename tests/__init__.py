@@ -1,3 +1,4 @@
+import os
 from unittest import TestSuite
 
 from tests.test_extract_info import TestExtractInfo
@@ -6,6 +7,9 @@ from tests.test_storage import TestStorage
 from tests.test_util import TestUtils
 
 test_cases = (TestExtractInfo, TestExtractSubs, TestStorage, TestUtils)
+
+if not os.getcwd().endswith('/tests'):
+    os.chdir('./tests')
 
 
 def load_tests(loader, tests, pattern):

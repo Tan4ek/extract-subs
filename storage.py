@@ -90,6 +90,12 @@ class Storage:
         r = c.execute(f"SELECT * FROM {Storage._VIDEO_SUBTITLE_FILE_TABLE} WHERE video_file_id = {video_file_id}")
         return c.fetchall()
 
+    def get_all_merged_subtitles_by_video_file_id(self, video_file_id: int) -> List[sqlite3.Row]:
+        c = self.conn.cursor()
+        r = c.execute(f"SELECT * FROM {Storage._VIDEO_SUBTITLE_FILE_TABLE} WHERE video_file_id = {video_file_id} AND "
+                      f"instr(language_iso639_3, ',') and source = 'Merge'")
+        return c.fetchall()
+
     def get_video_file_by_full_path(self, full_path) -> sqlite3.Row:
         (dir, file_name) = os.path.split(full_path)
         c = self.conn.cursor()
@@ -97,6 +103,15 @@ class Storage:
                       (dir.rstrip('/'), file_name))
         x = c.fetchone()
         return x
+
+    def is_file_scanned(self, full_path) -> bool:
+        (dir, file_name) = os.path.split(full_path)
+        c = self.conn.cursor()
+        r = c.execute(
+            f"SELECT count(DISTINCT id) as count FROM {Storage._VIDEO_FILE_TABLE} WHERE dir = ? AND filename = ?",
+            (dir.rstrip('/'), file_name))
+        x = c.fetchone()
+        return x['count'] > 0
 
     def _migrate_from_cache_file(self, cache_file_path):
         def read_cache(file_path):

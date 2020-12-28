@@ -46,6 +46,13 @@ class Storage:
         for sql in [sql_create_file_table, sql_create_file_subtitle_table]:
             self.conn.execute(sql)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.conn:
+            self.conn.close()
+
     def create_video_file(self, dir: str, filename: str, override_on_exist: bool = False) -> sqlite3.Row:
         x = (dir.rstrip('/'), filename, datetime.utcnow().isoformat())
         with self.conn as c:

@@ -180,7 +180,7 @@ class ExtractSubs:
             self._storage.create_video_subtitle(saved_video_file['id'], merged_subtitles['srt_full_path'],
                                                 f"{lang_top.part3},{lang_bot.part3}", None, 'Merge')
 
-    def extract_subs(self, file: ScannedFile):
+    def _extract_subs(self, file: ScannedFile):
         logging.info("*****************************")
         logging.info(f"Directory: {file.dir}")
         logging.info(f"File: {file.filename}")
@@ -235,12 +235,8 @@ class ExtractSubs:
         scanned_files = [self._read_subtitles(file_to_scan) for file_to_scan in files_to_scan]
 
         for scanned_file in scanned_files:
-            self.extract_subs(scanned_file)
-
-        for scanned_file in scanned_files:
+            self._extract_subs(scanned_file)
             self._merge_subs(scanned_file)
-
-        for scanned_file in scanned_files:
             self._save_scanned_files(scanned_file)
 
 

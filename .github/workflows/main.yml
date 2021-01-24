@@ -56,3 +56,20 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/386
           tags: tan4ek/extract-merge-subtitles:latest
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+      - name: Create docker file for arm64 platform
+        run: |
+          cp ./Dockerfile ./Dockerfile.arm64 && sed -i 's/FROM python:/FROM arm64v8\/python:/' ./Dockerfile.arm64
+      - name: Build & push arm64 version
+        if: success()
+        run: |
+          docker buildx build \
+          --platform linux/arm64 \
+          --tag tan4ek/extract-merge-subtitles:arm64 \
+          --file ./Dockerfile.arm64 \
+          --output type=image,push=true .

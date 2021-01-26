@@ -21,7 +21,10 @@ import argparse
 import logging
 import os
 import re
+import signal
 import sys
+import threading
+import time
 from collections import namedtuple
 from pathlib import Path
 from typing import List, Set
@@ -29,17 +32,20 @@ from typing import List, Set
 from babelfish import Language
 from iso639 import languages as iso639, Iso639
 from subliminal import save_subtitles, scan_video, region, download_best_subtitles, subtitle
+from watchdog.observers import Observer
 
 import mergesubs
 import util
 from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks
+from liste_files import FileFinallyCreatedEventHandler
 from storage import Storage
 
 ScannedFile = namedtuple('ScanFile', ['filename', 'basename', 'extension', 'dir', 'full_path', 'subtitles',
                                       'merged_subtitles'])
 FileToScan = namedtuple('FileToScan', ['root', 'filename'])
 AppRunConfig = namedtuple('AppRunConfig', ['target_path', 'target_languages', 'merge_languages_pairs',
-                                           'validation_regex', 'opensubtitles_auth', 'download_online'])
+                                           'validation_regex', 'opensubtitles_auth', 'download_online',
+                                           'listen_new'])
 
 CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
@@ -232,12 +238,43 @@ class ExtractSubs:
 
         files_to_scan = self._scrap_files_to_scan()
 
-        scanned_files = [self._read_subtitles(file_to_scan) for file_to_scan in files_to_scan]
+        self.extract_and_merge(files_to_scan)
+
+    def extract_and_merge(self, files: List[FileToScan]):
+        scanned_files = [self._read_subtitles(file_to_scan) for file_to_scan in files]
 
         for scanned_file in scanned_files:
             self._extract_subs(scanned_file)
             self._merge_subs(scanned_file)
             self._save_scanned_files(scanned_file)
+
+
+class ListenNewFiles(threading.Thread):
+    def __init__(self, extract_subs: ExtractSubs, target_path: str):
+        super().__init__()
+        self._file_observer = Observer()
+        self.cease_continuous_run = threading.Event()
+        self._extract_subs = extract_subs
+        self._event_handler = FileFinallyCreatedEventHandler(["*.mkv"], self._filter_files, self._extract_and_merge)
+        self._file_observer.schedule(self._event_handler, target_path, recursive=True)
+
+    def _filter_files(self, name: str, dirpath: str) -> bool:
+        return self._extract_subs._is_file_valid(name, dirpath) and \
+               not self._extract_subs._is_file_already_scanned(name, dirpath)
+
+    def _extract_and_merge(self, name: str, dirpath: str):
+        self._extract_subs.extract_and_merge([FileToScan(dirpath, name)])
+
+    def run(self):
+        self._file_observer.start()
+        while not self.cease_continuous_run.is_set():
+            self._event_handler.pending_watch_created_files()
+            time.sleep(1)
+
+    def stop(self):
+        self.cease_continuous_run.set()
+        self._file_observer.stop()
+        self._file_observer.join()
 
 
 if __name__ == '__main__':
@@ -297,6 +334,7 @@ if __name__ == '__main__':
     parser.add_argument('--db-file', help='Full path to sqlite file', type=str, default='.extract-subs.sqlite3')
     parser.add_argument('--no-download-subtitles-online', dest='download_online',
                         action='store_false', help='do not try to download missed subtitles online')
+    parser.add_argument('--listen-new', help='listen new files', action='store_true')
     parser.set_defaults(download_online=True)
     args = parser.parse_args()
     path = args.path
@@ -312,7 +350,20 @@ if __name__ == '__main__':
         app_run_config = AppRunConfig(target_path=path, target_languages=target_languages,
                                       merge_languages_pairs=merge_languages_pairs,
                                       validation_regex=validation_regex, opensubtitles_auth=opensubtitles_auth,
-                                      download_online=args.download_online)
+                                      download_online=args.download_online, listen_new=args.listen_new)
 
         sub_extract = ExtractSubs(app_run_config, storage)
         sub_extract.scan_files()
+        if args.listen_new:
+            watcher = ListenNewFiles(sub_extract, app_run_config.target_path)
+
+
+            def stop_app(g, i):
+                watcher.stop()
+                logging.info("File listener stopped")
+
+
+            watcher.start()
+            signal.signal(signal.SIGINT, stop_app)
+            signal.signal(signal.SIGTERM, stop_app)
+            signal.pause()

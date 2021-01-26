@@ -13,6 +13,7 @@ class Storage:
     _VIDEO_FILE_TABLE = 'video_file'
 
     def __init__(self, db_file):
+        logging.info(f"Use storage file: {db_file}")
         self.conn = sqlite3.connect(db_file, check_same_thread=False)
 
         def dict_factory(cursor, row):
@@ -146,7 +147,7 @@ class Storage:
             # skipping
             return
 
-        for file in cache['files']:
+        for file in cache.get('files', []):
             file_dir = file['dir']
             file_name = file['filename']
             x = self.create_video_file(file_dir, file_name)

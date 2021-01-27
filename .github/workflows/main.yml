@@ -38,7 +38,6 @@ jobs:
     name: Trigger build and push docker
     runs-on: ubuntu-latest
     steps:
-      - name: Use Dispatch to build and push docker
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
         with:

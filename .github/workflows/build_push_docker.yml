@@ -1,11 +1,11 @@
 name: Build and push docker image
 
 on:
-  push:
-    branches: [ master ]
+  repository_dispatch
+  types: [ build-push-docker ]
 
 jobs:
-  build:
+  build_and_push_docker:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,7 +33,7 @@ jobs:
           push: true
           file: ./Dockerfile
           platforms: linux/amd64,linux/386
-          tags: ${DOCKER_IMAGE}:latest
+          tags: tan4ek/extract-merge-subtitles:latest
       - name: Set up QEMU
         id: qemu
         uses: docker/setup-qemu-action@v1

@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from watchdog.observers import Observer
 
-from liste_files import FileFinallyCreatedEventHandler
+from file_event_handler import FileFinallyCreatedEventHandler
 
 
 class TestExtractSubs(unittest.TestCase):
@@ -20,9 +20,9 @@ class TestExtractSubs(unittest.TestCase):
             created_file_count[os.path.join(dir, name)] += 1
 
         observer = Observer()
-        file_watcher = FileFinallyCreatedEventHandler(['*.txt'], lambda name, dir: 'exclude' not in name,
-                                                      _increment_counter, 1)
-        observer.schedule(file_watcher, tmp_dir, recursive=True)
+        file_event_handler = FileFinallyCreatedEventHandler(['*.txt'], lambda name, dir: 'exclude' not in name,
+                                                            _increment_counter, 1)
+        observer.schedule(file_event_handler, tmp_dir, recursive=True)
         observer.start()
 
         test_files = [os.path.join(tmp_dir, x) for x in ['test_0.txt', 'test_1.txt', 'java.script', 'exclude.txt']]
@@ -31,7 +31,7 @@ class TestExtractSubs(unittest.TestCase):
                 f.write('test ' + test_file_path)
 
         time.sleep(2)
-        file_watcher.pending_watch_created_files()
+        file_event_handler.pending_watch_created_files()
 
         for test_file_path in test_files:
             if test_file_path.endswith('.txt') and 'exclude' not in test_file_path:

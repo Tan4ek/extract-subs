@@ -37,7 +37,7 @@ from watchdog.observers import Observer
 import mergesubs
 import util
 from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks
-from liste_files import FileFinallyCreatedEventHandler
+from file_event_handler import FileFinallyCreatedEventHandler
 from storage import Storage
 
 ScannedFile = namedtuple('ScanFile', ['filename', 'basename', 'extension', 'dir', 'full_path', 'subtitles',
@@ -249,12 +249,13 @@ class ExtractSubs:
             self._save_scanned_files(scanned_file)
 
 
-class ListenNewFiles(threading.Thread):
+class NewFilesListener(threading.Thread):
     def __init__(self, extract_subs: ExtractSubs, target_path: str):
         super().__init__()
         self._file_observer = Observer()
         self.cease_continuous_run = threading.Event()
         self._extract_subs = extract_subs
+        self._target_path = target_path
         self._event_handler = FileFinallyCreatedEventHandler(["*.mkv"], self._filter_files, self._extract_and_merge)
         self._file_observer.schedule(self._event_handler, target_path, recursive=True)
 
@@ -267,14 +268,23 @@ class ListenNewFiles(threading.Thread):
 
     def run(self):
         self._file_observer.start()
+        logging.info(f"Start to listen new files in {self._target_path}")
         while not self.cease_continuous_run.is_set():
             self._event_handler.pending_watch_created_files()
             time.sleep(1)
+
+    def __enter__(self):
+        self.run()
+        return self
 
     def stop(self):
         self.cease_continuous_run.set()
         self._file_observer.stop()
         self._file_observer.join()
+        logging.info("File listener stopped")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
 
 
 if __name__ == '__main__':
@@ -355,15 +365,5 @@ if __name__ == '__main__':
         sub_extract = ExtractSubs(app_run_config, storage)
         sub_extract.scan_files()
         if args.listen_new:
-            watcher = ListenNewFiles(sub_extract, app_run_config.target_path)
-
-
-            def stop_app(g, i):
-                watcher.stop()
-                logging.info("File listener stopped")
-
-
-            watcher.start()
-            signal.signal(signal.SIGINT, stop_app)
-            signal.signal(signal.SIGTERM, stop_app)
-            signal.pause()
+            with NewFilesListener(sub_extract, app_run_config.target_path):
+                signal.pause()

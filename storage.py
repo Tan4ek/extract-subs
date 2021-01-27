@@ -152,7 +152,7 @@ class Storage:
             file_name = file['filename']
             x = self.create_video_file(file_dir, file_name)
 
-            print(f"Migration from cache file {x['filename']}, id: {x['id']}")
+            logging.info(f"Migration from cache file {x['filename']}, id: {x['id']}")
             for subtitle in file['subtitles']:
                 srt_full_path = subtitle['srt_full_path']
                 srt_lang_code = subtitle['srt_lang_code']

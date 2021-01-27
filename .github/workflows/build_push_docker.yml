@@ -1,0 +1,53 @@
+name: Build and push docker image
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.8 ]
+    env:
+      DOCKER_IMAGE: tan4ek/extract-merge-subtitles
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_TARGET_PLATFORM: linux/arm64
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
+      - name: Docker Login
+        if: success()
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+      - name: Build & push amd64 version
+        if: success()
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/386
+          tags: ${DOCKER_IMAGE}:latest
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+      - name: Create docker file for arm64 platform
+        run: |
+          cp ./Dockerfile ./Dockerfile.arm64 && sed -i 's/FROM python:/FROM arm64v8\/python:/' ./Dockerfile.arm64
+      - name: Build & push arm64 version
+        if: success()
+        run: |
+          docker buildx build \
+          --platform linux/arm64 \
+          --tag ${DOCKER_IMAGE}:arm64 \
+          --file ./Dockerfile.arm64 \
+          --output type=image,push=true .

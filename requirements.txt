@@ -4,3 +4,5 @@ babelfish~=0.5.5
 pysubs2~=1.0.0
 iso-639~=0.4.5
 chardet~=3.0.4
+watchdog~=1.0.2
+schedule~=0.6.0

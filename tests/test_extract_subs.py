@@ -10,14 +10,15 @@ from storage import Storage
 
 
 class TestExtractSubs(unittest.TestCase):
-    def test_something(self):
+    def test_extract_subs(self):
         tmp_dir = tempfile.mkdtemp()
 
         file = os.path.join(tmp_dir, 'fragment.mkv')
         shutil.copyfile('fragment.mkv', file)
         with Storage(':memory:') as storage:
             app_run_config = AppRunConfig(tmp_dir, [languages.get(part1=x) for x in ['ru', 'en', 'fr']],
-                                          [(languages.get(part1='ru'), languages.get(part1='en'))], ".*", {}, False)
+                                          [(languages.get(part1='ru'), languages.get(part1='en'))], ".*", {}, False,
+                                          False)
 
             extract_subs = ExtractSubs(app_run_config, storage)
             extract_subs.scan_files()

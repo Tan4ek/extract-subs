@@ -1,7 +1,7 @@
 import unittest
 
 from extract_mkv_info import parse_mkv_subtitles_info_from_str
-from util import bcp47_language_code_to_iso_639, iso639_from_str
+from util import bcp47_language_code_to_iso_639, iso639_from_str, detect_iso639
 
 
 class TestUtils(unittest.TestCase):
@@ -25,6 +25,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(iso639_from_str('ru').name, "Russian")
         self.assertIsNotNone(iso639_from_str('en'))
         self.assertEqual(iso639_from_str('en').name, "English")
+
+    def test_detect_iso639(self):
+        self.assertEqual(detect_iso639('und', 'test_russian.srt').name, 'Russian')
+        self.assertEqual(detect_iso639('rus', 'test_russian.srt').name, 'Russian')
+        self.assertEqual(detect_iso639('ru', 'test_russian.srt').name, 'Russian')
+        self.assertEqual(detect_iso639('python', 'test_russian.srt').name, 'Russian')
+        self.assertEqual(detect_iso639('und', 'file_doesnt_exist.srt').name, 'Undetermined')
+        self.assertEqual(detect_iso639('python', 'file_doesnt_exist.srt'), None)
 
 
 if __name__ == '__main__':

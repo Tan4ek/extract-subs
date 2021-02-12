@@ -1,4 +1,8 @@
+import os
+
+import srt
 from iso639 import languages as iso639
+from langdetect import detect
 
 _DETECTED_TO_ISO_639_PART1_DICT = {
     "zh-cn": "zh",
@@ -21,6 +25,24 @@ def bcp47_language_code_to_iso_639(bcp47_code: str, default=None) -> str:
         return bcp47_code.split('-')[0].lower()
     else:
         return default
+
+
+def detect_iso639(lang_str: str, file_path: str) -> iso639:
+    iso639_by_lang_str = iso639_from_str(lang_str)
+    (_, ext) = os.path.splitext(file_path)
+    lang_code_is_valid = iso639_by_lang_str is not None and iso639_by_lang_str.name != 'Undetermined'
+    if not lang_code_is_valid and ext == '.srt':
+        try:
+            with open(file_path, 'r') as srt_file:
+                srt_file_content = srt_file.read()
+            srt_content = '\n'.join([x.content for x in srt.parse(srt_file_content)])
+            detected_code = convert_detect_to_iso639(detect(srt_content))
+            return iso639_from_str(detected_code)
+        except:
+            # TODO log error
+            return iso639_by_lang_str
+    else:
+        return iso639_by_lang_str
 
 
 def iso639_from_str(lang_str: str) -> iso639:

@@ -148,6 +148,7 @@ class ExtractSubs:
                 srt_exists = os.path.isfile(srt_full_path)
                 s = {
                     'srt_track_id': mkv_subtitle_info.track_number,
+                    # TODO write to tmp file
                     'srt_full_path': srt_full_path,
                     'srt_exists': srt_exists
                 }

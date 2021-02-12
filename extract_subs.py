@@ -256,10 +256,10 @@ class NewFilesListener(threading.Thread):
         self.cease_continuous_run = threading.Event()
         self._extract_subs = extract_subs
         self._target_path = target_path
-        self._event_handler = FileFinallyCreatedEventHandler(["*.mkv"], self._filter_files, self._extract_and_merge)
+        self._event_handler = FileFinallyCreatedEventHandler(["*.mkv"], self._file_predicate, self._extract_and_merge)
         self._file_observer.schedule(self._event_handler, target_path, recursive=True)
 
-    def _filter_files(self, name: str, dirpath: str) -> bool:
+    def _file_predicate(self, name: str, dirpath: str) -> bool:
         return self._extract_subs._is_file_valid(name, dirpath) and \
                not self._extract_subs._is_file_already_scanned(name, dirpath)
 

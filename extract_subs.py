@@ -52,6 +52,7 @@ CACHE_FILE_NAME = '.extractsubs'
 _SUPPORTED_FILE_EXTENSIONS = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
 
 logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.getLogger('schedule').propagate = False
 
 
 class ExtractSubs:

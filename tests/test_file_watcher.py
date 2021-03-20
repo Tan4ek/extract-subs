@@ -5,7 +5,7 @@ import time
 import unittest
 from collections import defaultdict
 
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 
 from file_event_handler import FileFinallyCreatedEventHandler
 
@@ -19,7 +19,7 @@ class TestExtractSubs(unittest.TestCase):
         def _increment_counter(name: str, dir: str):
             created_file_count[os.path.join(dir, name)] += 1
 
-        observer = Observer()
+        observer = PollingObserver()
         file_event_handler = FileFinallyCreatedEventHandler(['*.txt'], lambda name, dir: 'exclude' not in name,
                                                             _increment_counter, 1)
         observer.schedule(file_event_handler, tmp_dir, recursive=True)

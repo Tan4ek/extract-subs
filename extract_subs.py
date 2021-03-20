@@ -32,7 +32,7 @@ from typing import List, Set
 from babelfish import Language
 from iso639 import languages as iso639, Iso639
 from subliminal import save_subtitles, scan_video, region, download_best_subtitles, subtitle
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 
 import mergesubs
 import util
@@ -253,7 +253,7 @@ class ExtractSubs:
 class NewFilesListener(threading.Thread):
     def __init__(self, extract_subs: ExtractSubs, target_path: str):
         super().__init__()
-        self._file_observer = Observer()
+        self._file_observer = PollingObserver()
         self.cease_continuous_run = threading.Event()
         self._extract_subs = extract_subs
         self._target_path = target_path

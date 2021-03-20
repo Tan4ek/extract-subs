@@ -251,9 +251,11 @@ class ExtractSubs:
 
 
 class NewFilesListener(threading.Thread):
+    DEFAULT_OBSERVER_TIMEOUT = 5 * 60  # in seconds
+
     def __init__(self, extract_subs: ExtractSubs, target_path: str):
         super().__init__()
-        self._file_observer = PollingObserver()
+        self._file_observer = PollingObserver(NewFilesListener.DEFAULT_OBSERVER_TIMEOUT)
         self.cease_continuous_run = threading.Event()
         self._extract_subs = extract_subs
         self._target_path = target_path

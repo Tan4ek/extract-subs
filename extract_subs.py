@@ -51,7 +51,7 @@ CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
 _SUPPORTED_FILE_EXTENSIONS = ['.mkv', '.mp4', '.avi', '.mpg', '.mpeg']
 
-logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level='INFO', format='%(asctime)s - [%(filename)s:%(lineno)d] - %(levelname)s - %(message)s')
 logging.getLogger('schedule').propagate = False
 
 

@@ -45,7 +45,6 @@ class FileFinallyCreatedEventHandler(PatternMatchingEventHandler):
         src_path = event.src_path
         dirpath = os.path.dirname(src_path)
         name = os.path.basename(src_path)
-        logging.info(f"New file created {src_path}")
         if self._file_watcher_filter(name, dirpath):
             file_path = os.path.getsize(src_path)
             created_file = CreatedFile(src_path, datetime.utcnow(), file_path)

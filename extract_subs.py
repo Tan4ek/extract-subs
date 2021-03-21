@@ -21,31 +21,26 @@ import argparse
 import logging
 import os
 import re
+import shutil
 import signal
 import sys
 import threading
 import time
-from collections import namedtuple
 from pathlib import Path
 from typing import List, Set
 
-from babelfish import Language
 from iso639 import languages as iso639, Iso639
-from subliminal import save_subtitles, scan_video, region, download_best_subtitles, subtitle
+from subliminal import region
 from watchdog.observers.polling import PollingObserver
 
 import mergesubs
 import util
-from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks
+from entities import AppRunConfig, ProcessedFile, ExtractedMKVTrack, MergedSubtitle, FileToScan, \
+    ScannedFile, TrackMetadata
+from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks, \
+    MKV_TRACK_TYPE_SUBTITLE
 from file_event_handler import FileFinallyCreatedEventHandler
 from storage import Storage
-
-ScannedFile = namedtuple('ScanFile', ['filename', 'basename', 'extension', 'dir', 'full_path', 'subtitles',
-                                      'merged_subtitles'])
-FileToScan = namedtuple('FileToScan', ['root', 'filename'])
-AppRunConfig = namedtuple('AppRunConfig', ['target_path', 'target_languages', 'merge_languages_pairs',
-                                           'validation_regex', 'opensubtitles_auth', 'download_online',
-                                           'listen_new'])
 
 CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME
@@ -89,77 +84,59 @@ class ExtractSubs:
             logging.error(f"Download error {e}")
             return False
 
-    def _merge_subs(self, file: ScannedFile):
-        if not self.app_config.merge_languages_pairs or not file:
-            return
+    def _merge_subs(self, processed_file: ProcessedFile) -> ProcessedFile:
+        extracted_tracks = processed_file.extracted_tracks
+        if not self.app_config.merge_languages_pairs or not extracted_tracks or len(extracted_tracks) == 0:
+            return processed_file
 
-        def file_path_by_lang(file_subtitles: list, iso639_language: iso639) -> Set[str]:
-            return {x['srt_full_path'] for x in file_subtitles if x['srt_lang_code'] is iso639_language}
+        def tracks_by_language(iso639_language: iso639) -> Set[ExtractedMKVTrack]:
+            return {extracted_track for extracted_track in extracted_tracks if
+                    extracted_track.metadata.language_code is iso639_language}
 
-        subtitles = file.subtitles if file.subtitles else []
-
+        merged_subtitles = processed_file.merged_subtitles if processed_file.merged_subtitles else []
         for merge_lang_pair in self.app_config.merge_languages_pairs:
             lang_top = merge_lang_pair[0]
             lang_bot = merge_lang_pair[1]
-            top_subtitle_paths = file_path_by_lang(subtitles, lang_top)
-            bot_subtitle_paths = file_path_by_lang(subtitles, lang_bot)
+            top_tracks = tracks_by_language(lang_top)
+            bot_tracks = tracks_by_language(lang_bot)
 
-            def _subtitle_path_exists(subtitle_path: str) -> bool:
-                return subtitle_path is not None and Path(subtitle_path).exists()
+            def _subtitle_path_exists(subtitle_path: Path) -> bool:
+                return subtitle_path is not None and subtitle_path.exists()
 
             index = 1
 
-            for top_subtitle_path in top_subtitle_paths:
-                for bot_subtitle_path in bot_subtitle_paths:
-                    if _subtitle_path_exists(top_subtitle_path) and _subtitle_path_exists(bot_subtitle_path):
-                        index_suffix = f"_{index}" if len(top_subtitle_paths) == 1 and len(bot_subtitle_paths) == 1 \
+            for top_track in top_tracks:
+                for bot_track in bot_tracks:
+                    if _subtitle_path_exists(top_track.track_path) and _subtitle_path_exists(bot_track.track_path):
+                        index_suffix = f"_{index}" if len(top_tracks) == 1 and len(bot_tracks) == 1 \
                             else ""
-                        merged_srt_path = f"{os.path.join(file.dir, file.basename)}" \
-                                          f".{lang_top.part1}_{lang_bot.part1}{index_suffix}.ass"
+                        merged_srt_filename = f"{processed_file.scanned_file.basename}.{lang_top.part3}_{lang_bot.part3}{index_suffix}.ass"
+                        merged_srt_path = processed_file.scanned_file.dir / merged_srt_filename
                         try:
-                            mergesubs.merge(top_subtitle_path,
-                                            bot_subtitle_path,
+                            mergesubs.merge(top_track.track_path,
+                                            bot_track.track_path,
                                             merged_srt_path)
-                            file.merged_subtitles.append({
-                                'lang_top': lang_top,
-                                'lang_bot': lang_bot,
-                                'srt_full_path': merged_srt_path
-                            })
+                            merged_subtitles.append(MergedSubtitle(top_track, bot_track, merged_srt_path))
                             index = index + 1
                         except Exception as e:
                             import traceback, sys
                             traceback.print_exc(file=sys.stdout)
                             logging.error(f"Merge error {str(e)}")
+        return ProcessedFile(processed_file.scanned_file, processed_file.extracted_tracks, merged_subtitles)
 
     def _read_subtitles(self, file_to_scan: FileToScan) -> ScannedFile:
         name = file_to_scan.filename
         root = file_to_scan.root
+        container_file_path = os.path.join(root, name)
         (basename, ext) = os.path.splitext(name)
         if ext == '.mkv':
-            subtitles = []
-            # todo find existed merged subtitles
-            movie = ScannedFile(name, basename, ext, root, os.path.join(root, name), subtitles, [])
-
-            for mkv_subtitle_info in parse_mkv_subtitles_info_from_file(os.path.join(root, name)):
-                track_iso639_lang_code = util.bcp47_language_code_to_iso_639(mkv_subtitle_info.language_ietf,
-                                                                             default=mkv_subtitle_info.language)
-                name_suffix = f"_{mkv_subtitle_info.name}" if mkv_subtitle_info.name else ""
-                srt_full_path = os.path.join(root, f"{basename}_{track_iso639_lang_code}{name_suffix}.srt")
-                srt_exists = os.path.isfile(srt_full_path)
-                s = {
-                    'srt_track_id': mkv_subtitle_info.track_number,
-                    # TODO write to tmp file
-                    'srt_full_path': srt_full_path,
-                    'srt_exists': srt_exists
-                }
-                if track_iso639_lang_code:
-                    s['srt_lang_code'] = util.iso639_from_str(track_iso639_lang_code)
-
-                subtitles.append(s)
-            return movie
+            subtitles = [TrackMetadata(Path(container_file_path), mkv_subtitle_info.track_number,
+                                       util.bcp47_language_code_to_iso_639(mkv_subtitle_info),
+                                       mkv_subtitle_info)
+                         for mkv_subtitle_info in parse_mkv_subtitles_info_from_file(container_file_path)]
+            return ScannedFile(name, basename, ext, Path(root), Path(container_file_path), subtitles)
         else:
-            empty_movie = ScannedFile(name, basename, ext, root, os.path.join(root, name), [], [])
-            return empty_movie
+            return ScannedFile(name, basename, ext, Path(root), Path(container_file_path), [])
 
     def _scrap_files_to_scan(self) -> List[FileToScan]:
         files_to_scan = []
@@ -176,79 +153,109 @@ class ExtractSubs:
                 files_to_scan.append(FileToScan(dirpath, name))
         return files_to_scan
 
-    def _save_scanned_files(self, file: ScannedFile):
-        saved_video_file = self._storage.create_video_file(file.dir, file.filename)
-        for file_subtitle in file.subtitles:
-            self._storage.create_video_subtitle(saved_video_file['id'], file_subtitle['srt_full_path'],
-                                                file_subtitle['srt_lang_code'].part3, file_subtitle['srt_track_id'],
+    def _save_scanned_files(self, processed_file: ProcessedFile) -> ProcessedFile:
+        file = processed_file.scanned_file
+        saved_video_file = self._storage.create_video_file(str(file.dir), file.filename)
+        for extracted_track in processed_file.extracted_tracks:
+            self._storage.create_video_subtitle(saved_video_file['id'], str(extracted_track.track_path),
+                                                extracted_track.metadata.language_code.part3,
+                                                extracted_track.metadata.srt_track_id,
                                                 source='FILE')
-        for merged_subtitles in file.merged_subtitles:
-            lang_bot = merged_subtitles['lang_bot']
-            lang_top = merged_subtitles['lang_top']
-            self._storage.create_video_subtitle(saved_video_file['id'], merged_subtitles['srt_full_path'],
-                                                f"{lang_top.part3},{lang_bot.part3}", None, 'Merge')
+        for merged_subtitle in processed_file.merged_subtitles:
+            bot_track = merged_subtitle.bot_track
+            top_track = merged_subtitle.top_track
+            langs_part3 = f"{top_track.metadata.language_code.part3},{bot_track.metadata.language_code.part3}"
+            self._storage.create_video_subtitle(saved_video_file['id'], str(merged_subtitle.srt_path),
+                                                langs_part3, None, 'Merge')
+        return processed_file
 
-    def _extract_subs(self, file: ScannedFile):
-        logging.info("*****************************")
-        logging.info(f"Directory: {file.dir}")
-        logging.info(f"File: {file.filename}")
-        logging.info("Embedded subtitles found.")
-        extract_mkv_tracks(file.full_path, file.subtitles)
-        extracted_languages = [subtitle for subtitle in file.subtitles if subtitle['srt_lang_code'] is not None]
-        languages_to_download = [x for x in self.app_config.target_languages if x not in extracted_languages]
+    def _extract_subs(self, file: ScannedFile) -> ProcessedFile:
+        return ProcessedFile(file, extract_mkv_tracks(file.full_path, file.subtitles))
 
-        if self.app_config.download_online:
-            self._download_subs(file, languages_to_download)
-
-    def _download_subs(self, file: ScannedFile, download_subtitle_langs=None):
-        if download_subtitle_langs is None:
-            download_subtitle_langs = [iso639.get(part3='eng')]
-        logging.info("Analyzing video file...")
-        try:
-            video = scan_video(file.full_path)
-        except ValueError as ex:
-            logging.info("Failed to analyze video. ", ex)
-            return None
-        logging.info("Choosing subtitle from online providers...")
-        languages_to_download = set(map(lambda lang: Language(lang.part3), download_subtitle_langs))
-        best_subtitles = download_best_subtitles({video}, languages_to_download, only_one=True,
-                                                 provider_configs={'opensubtitles': (
-                                                     self.app_config.opensubtitles_auth)})
-        if best_subtitles[video]:
-            logging.info("Downloading subtitles...")
-            try:
-                saved_subtitles = save_subtitles(video, best_subtitles[video])
-                for saved_subtitle in saved_subtitles:
-                    subtitle_path = subtitle.get_subtitle_path(video.name, saved_subtitle.language)
-                    file_exist = os.path.isfile(subtitle_path)
-                    file.subtitles = file.subtitles if file.subtitles else []
-                    file.subtitles.append({
-                        'srt_track_id': None,
-                        'srt_full_path': subtitle_path,
-                        'srt_exists': file_exist,
-                        'srt_lang_code': iso639.get(part3=saved_subtitle.language.alpha3),
-                    })
-
-            except Exception as e:
-                logging.error(f"Download error {e}")
-        else:
-            logging.error("No subtitles found online.")
+    # TODO fix downloading subtitle
+    # def _download_subs(self, file: ScannedFile, download_subtitle_langs=None):
+    #     if download_subtitle_langs is None:
+    #         download_subtitle_langs = [iso639.get(part3='eng')]
+    #     logging.info("Analyzing video file...")
+    #     try:
+    #         video = scan_video(file.full_path)
+    #     except ValueError as ex:
+    #         logging.info("Failed to analyze video. ", ex)
+    #         return None
+    #     logging.info("Choosing subtitle from online providers...")
+    #     languages_to_download = set(map(lambda lang: Language(lang.part3), download_subtitle_langs))
+    #     best_subtitles = download_best_subtitles({video}, languages_to_download, only_one=True,
+    #                                              provider_configs={'opensubtitles': (
+    #                                                  self.app_config.opensubtitles_auth)})
+    #     if best_subtitles[video]:
+    #         logging.info("Downloading subtitles...")
+    #         try:
+    #             saved_subtitles = save_subtitles(video, best_subtitles[video])
+    #             for saved_subtitle in saved_subtitles:
+    #                 subtitle_path = subtitle.get_subtitle_path(video.name, saved_subtitle.language)
+    #                 file.subtitles = file.subtitles if file.subtitles else []
+    #                 file.subtitles.append({
+    #                     'srt_track_id': None,
+    #                     'srt_full_path': subtitle_path,
+    #                     'srt_lang_code': iso639.get(part3=saved_subtitle.language.alpha3),
+    #                 })
+    #
+    #         except Exception as e:
+    #             logging.error(f"Download error {e}")
+    #     else:
+    #         logging.error("No subtitles found online.")
 
     def scan_files(self):
         self._check()
-        self._prepare_subliminal()
+        # TODO fix downloading subtitle
+        # self._prepare_subliminal()
 
         files_to_scan = self._scrap_files_to_scan()
 
         self.extract_and_merge(files_to_scan)
 
     def extract_and_merge(self, files: List[FileToScan]):
-        scanned_files = [self._read_subtitles(file_to_scan) for file_to_scan in files]
+        for file_to_scan in files:
+            scanned_file = self._read_subtitles(file_to_scan)
+            pf = self._extract_subs(scanned_file)
+            pf_with_lang = self._detect_missed_tracks_languages(pf)
+            pf_with_merged_subs = self._merge_subs(pf_with_lang)
+            pf = self._save_tmp_tracks(pf_with_merged_subs)
+            self._save_scanned_files(pf)
 
-        for scanned_file in scanned_files:
-            self._extract_subs(scanned_file)
-            self._merge_subs(scanned_file)
-            self._save_scanned_files(scanned_file)
+    def _detect_missed_tracks_languages(self, pf: ProcessedFile) -> ProcessedFile:
+        def _detect_track_lang(processed_track: ExtractedMKVTrack) -> ExtractedMKVTrack:
+            metadata = processed_track.metadata
+            if metadata.track_info.track_type == MKV_TRACK_TYPE_SUBTITLE:
+                lang_code = util.detect_iso639(metadata.language_code, processed_track.track_path)
+                track_metadata_with_fixed_language_code = \
+                    TrackMetadata(metadata.file_container_path, metadata.srt_track_id, lang_code, metadata.track_info)
+                return ExtractedMKVTrack(track_metadata_with_fixed_language_code, processed_track.track_path,
+                                         processed_track.is_temp_file)
+            else:
+                return processed_track
+
+        tracks_with_fixed_language_code = [_detect_track_lang(pt) for pt in pf.extracted_tracks]
+        return ProcessedFile(pf.scanned_file, tracks_with_fixed_language_code)
+
+    def _save_tmp_tracks(self, processed_file: ProcessedFile):
+        extracted_tracks = []
+        for extracted_track in processed_file.extracted_tracks:
+            if extracted_track.is_temp_file:
+                track_name = extracted_track.metadata.track_info.name
+                name_suffix = f"_{track_name}" if track_name else ""
+                basename = processed_file.scanned_file.basename
+                track_iso639_lang_code = extracted_track.metadata.language_code.part3
+                root = processed_file.scanned_file.dir
+                srt_full_path = root / f"{basename}_{track_iso639_lang_code}{name_suffix}.srt"
+
+                logging.info(f"Moving from {extracted_track.track_path} to {srt_full_path}")
+                shutil.move(str(extracted_track.track_path), str(srt_full_path))
+
+                extracted_tracks.append(ExtractedMKVTrack(extracted_track.metadata, srt_full_path, False))
+            else:
+                extracted_tracks.append(extracted_track)
+        return ProcessedFile(processed_file.scanned_file, extracted_tracks, processed_file.merged_subtitles)
 
 
 class NewFilesListener(threading.Thread):

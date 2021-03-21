@@ -1,25 +1,16 @@
 import json
 import logging
+import os
 import subprocess
 from collections import defaultdict
-from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
 from tempfile import mktemp
 from typing import List
 
-_MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
+from entities import MKVTrackInfo, TrackMetadata, ExtractedMKVTrack
 
-
-@dataclass
-class MKVTrackInfo:
-    # very useful information https://tools.ietf.org/id/draft-lhomme-cellar-matroska-04.html
-    name: str
-    track_type: str
-    track_number: int
-    language: str
-    language_ietf: str
-    _raw_properties: dict
+MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
 
 
 def parse_mkvinfo_from_file(file_path: str) -> List[MKVTrackInfo]:
@@ -35,7 +26,7 @@ def parse_mkvinfo_from_file(file_path: str) -> List[MKVTrackInfo]:
 
 def parse_mkv_subtitles_info_from_file(file_path: str) -> List[MKVTrackInfo]:
     mkv_tracks_info = parse_mkvinfo_from_file(file_path)
-    return [i for i in mkv_tracks_info if i.track_type == _MKV_TRACK_TYPE_SUBTITLE]
+    return [i for i in mkv_tracks_info if i.track_type == MKV_TRACK_TYPE_SUBTITLE]
 
 
 def parse_mkvinfo(mkvinfo_str: str) -> List[MKVTrackInfo]:
@@ -51,7 +42,7 @@ def parse_mkvinfo(mkvinfo_str: str) -> List[MKVTrackInfo]:
 
 def parse_mkv_subtitles_info_from_str(mkvinfo_str: str) -> List[MKVTrackInfo]:
     mkv_tracks_info = parse_mkvinfo(mkvinfo_str)
-    return [i for i in mkv_tracks_info if i.track_type == _MKV_TRACK_TYPE_SUBTITLE]
+    return [i for i in mkv_tracks_info if i.track_type == MKV_TRACK_TYPE_SUBTITLE]
 
 
 def _extract_mkvinfo(track: dict) -> MKVTrackInfo:
@@ -64,17 +55,25 @@ def _extract_mkvinfo(track: dict) -> MKVTrackInfo:
     return MKVTrackInfo(name, track_type, track_number, language, language_ietf, properties)
 
 
-def extract_mkv_tracks(mkv_file_path: str, tracks_info: List[dict]) -> bool:
+def extract_mkv_tracks(mkv_file_path: Path, tracks_info: List[TrackMetadata]) -> List[ExtractedMKVTrack]:
     logging.info(f"Extracting embedded subtitles from file {mkv_file_path}")
     if not tracks_info and not len(tracks_info):
-        return False
+        return []
 
-    def _track_to_srt_path(_tracks_info: List[dict]) -> List[str]:
-        return [str(s['srt_track_id']) + ":" + s['srt_full_path'] for s in _tracks_info]
+    def _track_to_processed(_tracks_info: TrackMetadata) -> ExtractedMKVTrack:
+        (basename, _) = os.path.splitext(_tracks_info.file_container_path.name)
+        path = _tracks_info.file_container_path.parent / f".{basename}_track_{_tracks_info.srt_track_id}"
+        return ExtractedMKVTrack(_tracks_info, path, True)
 
-    tracks_to_srt_paths = _track_to_srt_path(tracks_info)
+    def _track_to_srt_path(_tracks_info: List[ExtractedMKVTrack]) -> List[str]:
+        return [str(track_info.metadata.srt_track_id) + ":" + str(track_info.track_path)
+                for track_info in _tracks_info]
+
+    processed_subtitles = [_track_to_processed(track_info) for track_info in tracks_info]
+
+    tracks_to_srt_paths = _track_to_srt_path(processed_subtitles)
     temp_file = mktemp()
-    command = ["mkvextract", "tracks", mkv_file_path,
+    command = ["mkvextract", "tracks", str(mkv_file_path),
                *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
     result = subprocess.run(command, stdout=subprocess.PIPE)
     logging.info(f"tmp logs file: {temp_file}")
@@ -83,6 +82,8 @@ def extract_mkv_tracks(mkv_file_path: str, tracks_info: List[dict]) -> bool:
         mkvextract_output = Path(temp_file).read_text()
         logging.info(f"Can't extract subtitles from file {mkv_file_path}. Exit code: {result.returncode}, "
                      f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
-        return False
+        for processed_subtitle in processed_subtitles:
+            processed_subtitle.track_path.unlink(missing_ok=True)
+        return []
     else:
-        return True
+        return processed_subtitles

@@ -3,10 +3,11 @@ from unittest import TestSuite
 
 from tests.test_extract_info import TestExtractInfo
 from tests.test_extract_subs import TestExtractSubs
+from tests.test_file_watcher import TestListenNewFile
 from tests.test_storage import TestStorage
 from tests.test_util import TestUtils
 
-test_cases = (TestExtractInfo, TestExtractSubs, TestStorage, TestUtils)
+test_cases = (TestExtractInfo, TestExtractSubs, TestListenNewFile, TestStorage, TestUtils)
 
 if not os.getcwd().endswith('/tests'):
     os.chdir('./tests')

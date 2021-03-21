@@ -217,11 +217,11 @@ class ExtractSubs:
     def extract_and_merge(self, files: List[FileToScan]):
         for file_to_scan in files:
             scanned_file = self._read_subtitles(file_to_scan)
-            pf = self._extract_subs(scanned_file)
-            pf_with_lang = self._detect_missed_tracks_languages(pf)
-            pf_with_merged_subs = self._merge_subs(pf_with_lang)
-            pf = self._save_tmp_tracks(pf_with_merged_subs)
-            self._save_scanned_files(pf)
+            processed_file = self._extract_subs(scanned_file)
+            processed_file_with_lang = self._detect_missed_tracks_languages(processed_file)
+            processed_file_with_merged_subs = self._merge_subs(processed_file_with_lang)
+            processed_file_to_save = self._save_tmp_tracks(processed_file_with_merged_subs)
+            self._save_scanned_files(processed_file_to_save)
 
     def _detect_missed_tracks_languages(self, pf: ProcessedFile) -> ProcessedFile:
         def _detect_track_lang(processed_track: ExtractedMKVTrack) -> ExtractedMKVTrack:

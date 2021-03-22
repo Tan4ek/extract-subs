@@ -36,7 +36,7 @@ from watchdog.observers.polling import PollingObserver
 import mergesubs
 import util
 from entities import AppRunConfig, ProcessedFile, ExtractedMKVTrack, MergedSubtitle, FileToScan, \
-    ScannedFile, TrackMetadata
+    ScannedFile, TrackMetadata, ExtractMKVTrackIntent
 from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks, \
     MKV_TRACK_TYPE_SUBTITLE
 from file_event_handler import FileFinallyCreatedEventHandler
@@ -170,7 +170,20 @@ class ExtractSubs:
         return processed_file
 
     def _extract_subs(self, file: ScannedFile) -> ProcessedFile:
-        return ProcessedFile(file, extract_mkv_tracks(file.full_path, file.subtitles))
+        def _build_track_extract_intent(track_metadata: TrackMetadata) -> ExtractMKVTrackIntent:
+            (basename, _) = os.path.splitext(track_metadata.file_container_path.name)
+            path = track_metadata.file_container_path.parent / f".{basename}_track_{track_metadata.srt_track_id}"
+            return ExtractMKVTrackIntent(track_metadata.srt_track_id, path)
+
+        intent_to_track_metadata = {_build_track_extract_intent(track_metadata): track_metadata
+                                    for track_metadata in file.subtitles}
+
+        def _build_extracted_mkvtrack(extract_intent: ExtractMKVTrackIntent) -> ExtractedMKVTrack:
+            track_metadata = intent_to_track_metadata[extract_intent]
+            return ExtractedMKVTrack(track_metadata, extract_intent.target_track_path, True)
+
+        result_intents = extract_mkv_tracks(file.full_path, list(intent_to_track_metadata.keys()))
+        return ProcessedFile(file, [_build_extracted_mkvtrack(intent) for intent in result_intents])
 
     # TODO fix downloading subtitle
     # def _download_subs(self, file: ScannedFile, download_subtitle_langs=None):

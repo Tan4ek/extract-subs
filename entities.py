@@ -46,6 +46,12 @@ class ExtractedMKVTrack:
 
 
 @dataclass(frozen=True, eq=True)
+class ExtractMKVTrackIntent:
+    track_id: int
+    target_track_path: Path
+
+
+@dataclass(frozen=True, eq=True)
 class MergedSubtitle:
     top_track: ExtractedMKVTrack
     bot_track: ExtractedMKVTrack

@@ -1,14 +1,13 @@
 import json
 import logging
-import os
 import subprocess
 from collections import defaultdict
 from json import JSONDecodeError
 from pathlib import Path
-from tempfile import mktemp
+from tempfile import NamedTemporaryFile
 from typing import List
 
-from entities import MKVTrackInfo, TrackMetadata, ExtractedMKVTrack
+from entities import MKVTrackInfo, ExtractMKVTrackIntent
 
 MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
 
@@ -55,35 +54,30 @@ def _extract_mkvinfo(track: dict) -> MKVTrackInfo:
     return MKVTrackInfo(name, track_type, track_number, language, language_ietf, properties)
 
 
-def extract_mkv_tracks(mkv_file_path: Path, tracks_info: List[TrackMetadata]) -> List[ExtractedMKVTrack]:
+def extract_mkv_tracks(mkv_file_path: Path, extract_intents: List[ExtractMKVTrackIntent]) -> List[
+    ExtractMKVTrackIntent]:
     logging.info(f"Extracting embedded subtitles from file {mkv_file_path}")
-    if not tracks_info and not len(tracks_info):
+    if not len(extract_intents):
         return []
 
-    def _track_to_processed(_tracks_info: TrackMetadata) -> ExtractedMKVTrack:
-        (basename, _) = os.path.splitext(_tracks_info.file_container_path.name)
-        path = _tracks_info.file_container_path.parent / f".{basename}_track_{_tracks_info.srt_track_id}"
-        return ExtractedMKVTrack(_tracks_info, path, True)
+    def _track_to_srt_path(_extract_intent: List[ExtractMKVTrackIntent]) -> List[str]:
+        return [str(track_info.track_id) + ":" + str(track_info.target_track_path)
+                for track_info in _extract_intent]
 
-    def _track_to_srt_path(_tracks_info: List[ExtractedMKVTrack]) -> List[str]:
-        return [str(track_info.metadata.srt_track_id) + ":" + str(track_info.track_path)
-                for track_info in _tracks_info]
-
-    processed_subtitles = [_track_to_processed(track_info) for track_info in tracks_info]
-
-    tracks_to_srt_paths = _track_to_srt_path(processed_subtitles)
-    temp_file = mktemp()
-    command = ["mkvextract", "tracks", str(mkv_file_path),
-               *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
-    result = subprocess.run(command, stdout=subprocess.PIPE)
-    logging.info(f"tmp logs file: {temp_file}")
-    # https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
-    if result.returncode not in [0, 1]:
-        mkvextract_output = Path(temp_file).read_text()
-        logging.info(f"Can't extract subtitles from file {mkv_file_path}. Exit code: {result.returncode}, "
-                     f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
-        for processed_subtitle in processed_subtitles:
-            processed_subtitle.track_path.unlink(missing_ok=True)
-        return []
-    else:
-        return processed_subtitles
+    tracks_to_srt_paths = _track_to_srt_path(extract_intents)
+    with NamedTemporaryFile() as tf:
+        temp_file = tf.name
+        command = ["mkvextract", "tracks", str(mkv_file_path),
+                   *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
+        result = subprocess.run(command, stdout=subprocess.PIPE)
+        logging.info(f"tmp logs file: {temp_file}")
+        # https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
+        if result.returncode not in [0, 1]:
+            mkvextract_output = Path(temp_file).read_text()
+            logging.info(f"Can't extract subtitles from file {mkv_file_path}. Exit code: {result.returncode}, "
+                         f"stderr: {result.stderr}, stdout: {result.stdout}, output: {mkvextract_output}")
+            for extract_intent in extract_intents:
+                extract_intent.target_track_path.unlink(missing_ok=True)
+            return []
+        else:
+            return extract_intents

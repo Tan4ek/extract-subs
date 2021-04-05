@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 # encoding: utf-8
+from pathlib import Path
 
 import chardet
 import pysubs2
 from pysubs2 import SSAStyle, Color
 
 
-def charset_detect(filename):
-    with open(filename, 'rb') as fi:
+def charset_detect(file_path: Path):
+    with open(file_path, 'rb') as fi:
         return chardet.detect(fi.read())['encoding']
 
 
-def merge(file1, file2, outfile):
-    subs1 = pysubs2.load(file1, encoding=charset_detect(file1))
-    subs2 = pysubs2.load(file2, encoding=charset_detect(file2))
+def merge(top_file_path: Path, bot_file_path: Path, outfile: Path):
+    top_sub = pysubs2.load(str(top_file_path), encoding=charset_detect(top_file_path))
+    bot_sub = pysubs2.load(str(bot_file_path), encoding=charset_detect(bot_file_path))
 
     '''[V4+ Styles]
 Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
@@ -35,17 +36,17 @@ Style:  Bot ,Arial   ,16      ,&H00F9FFF9   ,&H00FFFFFF     ,&H00000000   ,&H000
     style_top.alignment = 8
     style_bot.alignment = 2
     # style_top.encoding # не знаю что значит, по умолчанию 1, в примере 0, оставлю 1
-    subs2.styles['bot'] = style_bot
-    subs2.styles['top'] = style_top
+    bot_sub.styles['bot'] = style_bot
+    bot_sub.styles['top'] = style_top
 
-    for line in subs2:
+    for line in bot_sub:
         line.style = 'bot'
 
-    for line in subs1:
+    for line in top_sub:
         line.style = 'top'
-        subs2.append(line)
+        bot_sub.append(line)
 
-    subs2.styles["Default"].fontsize = 14.0
-    subs2.styles["Default"].shadow = 0.5
-    subs2.styles["Default"].outline = 1.0
-    subs2.save(outfile)
+    bot_sub.styles["Default"].fontsize = 14.0
+    bot_sub.styles["Default"].shadow = 0.5
+    bot_sub.styles["Default"].outline = 1.0
+    bot_sub.save(str(outfile))

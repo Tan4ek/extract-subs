@@ -1,6 +1,6 @@
 import unittest
 
-from extract_mkv_info import parse_mkvinfo, parse_mkvinfo_from_file, parse_mkv_subtitles_info_from_str
+from src.extract_mkv_info import parse_mkvinfo, parse_mkvinfo_from_file, parse_mkv_subtitles_info_from_str
 
 
 class TestExtractInfo(unittest.TestCase):

@@ -7,10 +7,10 @@ from collections import defaultdict
 
 from watchdog.observers.polling import PollingObserver
 
-from file_event_handler import FileFinallyCreatedEventHandler
+from src.file_event_handler import FileFinallyCreatedEventHandler
 
 
-class TestExtractSubs(unittest.TestCase):
+class TestListenNewFile(unittest.TestCase):
     def test_watch_new_file(self):
         tmp_dir = tempfile.mkdtemp()
 

@@ -1,8 +1,9 @@
 langdetect~=1.0.8
 subliminal~=2.1.0
 babelfish~=0.5.5
-pysubs2~=1.0.0
+pysubs2~=1.1.0
 iso-639~=0.4.5
-chardet~=3.0.4
-watchdog~=1.0.2
-schedule~=0.6.0
+chardet~=4.0.0
+watchdog~=2.0.2
+schedule~=1.0.0
+srt~=3.4.1

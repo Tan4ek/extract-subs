@@ -33,14 +33,13 @@ from iso639 import languages as iso639, Iso639
 from subliminal import region
 from watchdog.observers.polling import PollingObserver
 
-import mergesubs
-import util
-from entities import AppRunConfig, ProcessedFile, ExtractedMKVTrack, MergedSubtitle, FileToScan, \
+from src import mergesubs, util
+from src.entities import AppRunConfig, ProcessedFile, ExtractedMKVTrack, MergedSubtitle, FileToScan, \
     ScannedFile, TrackMetadata, ExtractMKVTrackIntent
-from extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks, \
+from src.extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks, \
     MKV_TRACK_TYPE_SUBTITLE
-from file_event_handler import FileFinallyCreatedEventHandler
-from storage import Storage
+from src.file_event_handler import FileFinallyCreatedEventHandler
+from src.storage import Storage
 
 CACHE_FILE_NAME = '.extractsubs'
 # dictionary, saving in root_path/CACHE_FILE_NAME

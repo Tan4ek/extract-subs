@@ -12,7 +12,8 @@ WORKDIR /usr/src/app
 # version of mkvtoolnix https://pkgs.alpinelinux.org/packages?name=mkvtoolnix&branch=v3.13
 RUN apk add --no-cache 'mkvtoolnix=>52.0'
 
-COPY extract_subs.py extract_mkv_info.py iso639_json_parser.py mergesubs.py util.py storage.py file_event_handler.py entities.py ./
+COPY src ./src
+COPY extract_subs.py ./
 # Make sure scripts in .local are usable:
 ENV PATH=/root/.local/bin:$PATH
 

@@ -5,7 +5,7 @@ import srt
 from iso639 import languages as iso639
 from langdetect import detect
 
-from entities import MKVTrackInfo
+from src.entities import MKVTrackInfo
 
 _DETECTED_TO_ISO_639_PART1_DICT = {
     "zh-cn": "zh",

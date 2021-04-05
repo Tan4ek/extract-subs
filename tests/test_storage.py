@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from random import shuffle
 
-from iso639_json_parser import Iso639Decoder
-from storage import Storage
+from src.iso639_json_parser import Iso639Decoder
+from src.storage import Storage
 
 
 def read_cache(file_path):

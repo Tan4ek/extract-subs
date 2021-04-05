@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from extract_mkv_info import parse_mkv_subtitles_info_from_str
-from util import bcp47_language_code_to_iso_639_str, iso639_from_str, detect_iso639_from_str
+from src.extract_mkv_info import parse_mkv_subtitles_info_from_str
+from src.util import bcp47_language_code_to_iso_639_str, iso639_from_str, detect_iso639_from_str
 
 
 class TestUtils(unittest.TestCase):

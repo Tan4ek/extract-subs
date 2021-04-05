@@ -6,7 +6,7 @@ import unittest
 from iso639 import languages
 
 from extract_subs import ExtractSubs, AppRunConfig
-from storage import Storage
+from src.storage import Storage
 
 
 class TestExtractSubs(unittest.TestCase):

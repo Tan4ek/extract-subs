@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime
 from typing import List
 
-from iso639_json_parser import Iso639Decoder, Iso639Encoder
+from src.iso639_json_parser import Iso639Decoder, Iso639Encoder
 
 
 class Storage:

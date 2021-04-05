@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List
 
-from entities import MKVTrackInfo, ExtractMKVTrackIntent
+from src.entities import MKVTrackInfo, ExtractMKVTrackIntent
 
 MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
 

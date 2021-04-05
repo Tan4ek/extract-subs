@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from watchdog.observers.polling import PollingObserver
 
-from file_event_handler import FileFinallyCreatedEventHandler
+from src.file_event_handler import FileFinallyCreatedEventHandler
 
 
 class TestListenNewFile(unittest.TestCase):

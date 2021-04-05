@@ -15,7 +15,7 @@ MKV_TRACK_TYPE_SUBTITLE = 'subtitles'
 def parse_mkvinfo_from_file(file_path: str) -> List[MKVTrackInfo]:
     result = subprocess.run(['mkvmerge', '-i', '-J', '--output-charset', 'UTF-8', '--ui-language', 'en_US', file_path],
                             stdout=subprocess.PIPE)
-    # https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.exit_codes
+    # exit codes of 'mkvmerge' command https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.exit_codes
     if result.returncode in [0, 1]:
         return parse_mkvinfo(result.stdout.decode('utf-8'))
     else:
@@ -45,6 +45,7 @@ def parse_mkv_subtitles_info_from_str(mkvinfo_str: str) -> List[MKVTrackInfo]:
 
 
 def _extract_mkvinfo(track: dict) -> MKVTrackInfo:
+    # mkv field mapping https://tools.ietf.org/id/draft-lhomme-cellar-matroska-04.html
     properties = track.get('properties', defaultdict(lambda: None))
     name = properties.get("track_name")
     track_type = track.get("type", None)
@@ -61,7 +62,7 @@ def extract_mkv_tracks(mkv_file_path: Path, extract_intents: List[ExtractMKVTrac
         return []
 
     def _track_to_srt_path(_extract_intent: List[ExtractMKVTrackIntent]) -> List[str]:
-        return [str(track_info.track_id) + ":" + str(track_info.target_track_path)
+        return [f"{track_info.track_id}:{track_info.target_track_path}"
                 for track_info in _extract_intent]
 
     tracks_to_srt_paths = _track_to_srt_path(extract_intents)
@@ -71,7 +72,7 @@ def extract_mkv_tracks(mkv_file_path: Path, extract_intents: List[ExtractMKVTrac
                    *tracks_to_srt_paths, '-r', temp_file, '--ui-language', 'en_US']
         result = subprocess.run(command, stdout=subprocess.PIPE)
         logging.info(f"tmp logs file: {temp_file}")
-        # https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
+        # exit codes of 'mkvextract' command https://mkvtoolnix.download/doc/mkvextract.html#d4e1284
         if result.returncode not in [0, 1]:
             mkvextract_output = Path(temp_file).read_text()
             logging.info(f"Can't extract subtitles from file {mkv_file_path}. Exit code: {result.returncode}, "

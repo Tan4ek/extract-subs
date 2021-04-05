@@ -23,7 +23,7 @@ def convert_detect_to_iso639(lang_cde):
 
 
 def bcp47_language_code_to_iso_639_str(bcp47_code: str, default=None) -> str:
-    # https://tools.ietf.org/html/bcp47#page-7
+    # more information about bcp47 format https://tools.ietf.org/html/bcp47#page-7
     if bcp47_code:
         return bcp47_code.split('-')[0].lower()
     else:

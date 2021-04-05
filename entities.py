@@ -8,7 +8,6 @@ from iso639 import languages as iso639
 
 @dataclass(frozen=True, eq=True)
 class MKVTrackInfo:
-    # very useful information https://tools.ietf.org/id/draft-lhomme-cellar-matroska-04.html
     name: str
     track_type: str
     track_number: int

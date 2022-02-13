@@ -1,6 +1,7 @@
 import unittest
 
-from src.extract_mkv_info import parse_mkvinfo, parse_mkvinfo_from_file, parse_mkv_subtitles_info_from_str
+from src.extract_mkv_info import parse_mkvinfo, parse_mkvinfo_from_file, parse_mkv_subtitles_info_from_str, \
+    convert_track_name
 
 
 class TestExtractInfo(unittest.TestCase):
@@ -27,6 +28,15 @@ class TestExtractInfo(unittest.TestCase):
             mkv_subtitles_info = parse_mkv_subtitles_info_from_str(info_file.read())
             for mkv_subtitle_info in mkv_subtitles_info:
                 self.assertIsNotNone(mkv_subtitle_info.language)
+
+    def test_convert_track_name(self):
+        self.assertEqual(None, convert_track_name(None))
+        self.assertEqual('', convert_track_name(''))
+        self.assertEqual('Dub_NevaFilm', convert_track_name('Dub (NevaFilm)'))
+        self.assertEqual('DVO_Tycoonstudio', convert_track_name('DVO (Tycoon-studio)'))
+        self.assertEqual('Commentary_with_MFreemanBNighyNGoldsmithGJennings',
+                         convert_track_name('Commentary with M.Freeman\\B.Nighy\\N.Goldsmith\\G.Jennings'))
+        self.assertEqual('forced_Korolev_Vizgunov', convert_track_name('forced (Korolev, Vizgunov)'))
 
 
 if __name__ == '__main__':

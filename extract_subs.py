@@ -37,7 +37,7 @@ from src import mergesubs, util
 from src.entities import AppRunConfig, ProcessedFile, ExtractedMKVTrack, MergedSubtitle, FileToScan, \
     ScannedFile, TrackMetadata, ExtractMKVTrackIntent
 from src.extract_mkv_info import parse_mkv_subtitles_info_from_file, extract_mkv_tracks, \
-    MKV_TRACK_TYPE_SUBTITLE
+    MKV_TRACK_TYPE_SUBTITLE, convert_track_name
 from src.file_event_handler import FileFinallyCreatedEventHandler
 from src.storage import Storage
 
@@ -255,7 +255,7 @@ class ExtractSubs:
         extracted_tracks = []
         for extracted_track in processed_file.extracted_tracks:
             if extracted_track.is_temp_file:
-                track_name = extracted_track.metadata.track_info.name
+                track_name = convert_track_name(extracted_track.metadata.track_info.name)
                 name_suffix = f"_{track_name}" if track_name else ""
                 basename = processed_file.scanned_file.basename
                 track_iso639_lang_code = extracted_track.metadata.language_code.part3

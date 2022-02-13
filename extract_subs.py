@@ -263,7 +263,10 @@ class ExtractSubs:
                 srt_full_path = root / f"{basename}_{track_iso639_lang_code}{name_suffix}.srt"
 
                 logging.info(f"Moving from {extracted_track.track_path} to {srt_full_path}")
-                shutil.move(str(extracted_track.track_path), str(srt_full_path))
+                try:
+                    shutil.move(str(extracted_track.track_path), str(srt_full_path))
+                except Exception as e:
+                    logging.error(f"Fail to move file. {e}")
 
                 extracted_tracks.append(ExtractedMKVTrack(extracted_track.metadata, srt_full_path, False))
             else:

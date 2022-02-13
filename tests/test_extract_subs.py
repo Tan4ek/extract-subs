@@ -26,7 +26,11 @@ class TestExtractSubs(unittest.TestCase):
             video_files = storage.get_all_video_files()
             self.assertEqual(1, len(video_files))
             fragment_file = video_files[0]
-            self.assertEqual(10, len(storage.get_all_subtitles_by_video_file_id(fragment_file['id'])))
+            subtitles = storage.get_all_subtitles_by_video_file_id(fragment_file['id'])
+            self.assertEqual(5, len(subtitles))
+            subtitles_file_names = set(os.path.basename(subtitle['full_path']) for subtitle in subtitles)
+            self.assertEqual({'fragment_eng_SDH.srt', 'fragment_fra.srt', 'fragment.rus_eng.ass',
+                              'fragment_rus_Forced.srt', 'fragment_rus.srt'}, subtitles_file_names)
             # 1 - cause forced subtitles is empty, file is empty, can't merge
             self.assertEqual(1, len(storage.get_all_merged_subtitles_by_video_file_id(fragment_file['id'])))
 

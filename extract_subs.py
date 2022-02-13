@@ -175,7 +175,8 @@ class ExtractSubs:
             return ExtractMKVTrackIntent(track_metadata.srt_track_id, path)
 
         intent_to_track_metadata = {_build_track_extract_intent(track_metadata): track_metadata
-                                    for track_metadata in file.subtitles}
+                                    for track_metadata in file.subtitles
+                                    if track_metadata.language_code in self.app_config.target_languages}
 
         def _build_extracted_mkvtrack(extract_intent: ExtractMKVTrackIntent) -> ExtractedMKVTrack:
             track_metadata = intent_to_track_metadata[extract_intent]

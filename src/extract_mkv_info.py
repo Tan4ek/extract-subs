@@ -1,5 +1,7 @@
 import json
 import logging
+import re
+import string
 import subprocess
 from collections import defaultdict
 from json import JSONDecodeError
@@ -82,3 +84,10 @@ def extract_mkv_tracks(mkv_file_path: Path, extract_intents: List[ExtractMKVTrac
             return []
         else:
             return extract_intents
+
+
+def convert_track_name(track_name: str) -> str:
+    if not track_name:
+        return track_name
+    new_track_name = re.sub(r'[' + re.escape(string.punctuation) + ']', '', track_name)
+    return new_track_name.translate(str.maketrans({' ': '_'}))

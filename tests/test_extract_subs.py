@@ -2,14 +2,33 @@ import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
+import pysubs2
 from iso639 import languages
 
 from extract_subs import ExtractSubs, AppRunConfig
+from src.mergesubs import merge
 from src.storage import Storage
 
 
 class TestExtractSubs(unittest.TestCase):
+    def test_merge_subtitles_on_current_python(self):
+        with tempfile.TemporaryDirectory() as directory:
+            top = Path(directory) / 'top.srt'
+            bottom = Path(directory) / 'bottom.srt'
+            output = Path(directory) / 'merged.ass'
+            top.write_text('1\n00:00:01,000 --> 00:00:02,000\nTop subtitle\n', encoding='utf-8')
+            bottom.write_text('1\n00:00:01,000 --> 00:00:02,000\nBottom subtitle\n', encoding='utf-8')
+
+            merge(top, bottom, output)
+
+            merged = pysubs2.load(str(output))
+            self.assertEqual({(line.text, line.style) for line in merged},
+                             {('Top subtitle', 'top'), ('Bottom subtitle', 'bot')})
+            self.assertEqual(merged.styles['top'].alignment, 8)
+            self.assertEqual(merged.styles['bot'].alignment, 2)
+
     def test_extract_subs(self):
         tmp_dir = tempfile.mkdtemp()
 

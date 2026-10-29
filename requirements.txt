@@ -1,8 +1,11 @@
 langdetect~=1.0.9
+certifi>=2026.10.19
 subliminal~=2.1.0
 babelfish~=0.6.0
-pysubs2~=1.3.1
+pysubs2~=1.8.1
 iso-639~=0.4.5
+# shortcut: legacy subliminal/iso-639 use pkg_resources; remove after their migration.
+setuptools==81.0.0
 chardet~=4.0.0
 watchdog~=2.1.6
 schedule~=1.1.0
